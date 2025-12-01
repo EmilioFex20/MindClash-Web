@@ -1,35 +1,24 @@
 <template>
-  <component :is="compType" :class="buttonClass" v-bind="props" data-slot="button">
-    <slot></slot>
+  <component :is="compType" :class="buttonClass" v-bind="attrs" data-slot="button">
+    <slot />
   </component>
 </template>
 
 <script setup>
-import { computed, defineProps } from 'vue'
+import { computed, useAttrs } from 'vue'
 
-// Define props to accept variant, size, className, and asChild
+const attrs = useAttrs()
+
 const props = defineProps({
-  className: String,
-  variant: {
-    type: String,
-    default: 'default',
-  },
-  size: {
-    type: String,
-    default: 'default',
-  },
-  asChild: {
-    type: Boolean,
-    default: false,
-  },
+  className: { type: String, default: '' },
+  variant: { type: String, default: 'default' },
+  size: { type: String, default: 'default' },
+  asChild: { type: Boolean, default: false },
 })
 
-// Computed property for determining the component type
-const compType = computed(() => (props.asChild ? 'slot' : 'button'))
+const compType = computed(() => (props.asChild ? 'span' : 'button'))
 
-// Compute the class based on variant and size
 const buttonClass = computed(() => {
-  // Variants and sizes definition
   const variants = {
     default: 'bg-primary text-primary-foreground shadow-xs hover:bg-primary/90',
     destructive:
@@ -48,12 +37,13 @@ const buttonClass = computed(() => {
     icon: 'size-9',
   }
 
-  // Combine the classes based on variant, size, and additional className
   return [
     'inline-flex items-center justify-center gap-2 whitespace-nowrap rounded-md text-sm font-medium transition-all disabled:pointer-events-none disabled:opacity-50',
-    variants[props.variant] || variants.default, // Apply the variant class
-    sizes[props.size] || sizes.default, // Apply the size class
-    props.className, // Add the className if provided
+    variants[props.variant] || variants.default,
+    sizes[props.size] || sizes.default,
+    props.className,
   ]
+    .filter(Boolean)
+    .join(' ')
 })
 </script>
