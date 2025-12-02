@@ -1,12 +1,28 @@
 <template>
   <main class="quiz">
-    <!-- START -->
-    <section v-if="quizState === 'start'" class="centerPad">
+    <!-- LOADING -->
+    <section v-if="loading" class="centerPad">
+      <div class="wrap center">
+        <div class="spinner" />
+        <p class="muted" style="margin-top: 10px">Loading quiz…</p>
+      </div>
+    </section>
+
+    <!-- EMPTY / NOT FOUND -->
+    <section v-else-if="!quiz || questions.length === 0" class="centerPad">
       <div class="wrap">
-        <button class="ghostBack" type="button" @click="router.back()">
-          <ArrowLeft class="mini" />
-          Back
-        </button>
+        <div class="card padLg center stackMd">
+          <h2 class="h2">This quiz is empty.</h2>
+          <p class="muted">Maybe it was removed, or there are no questions yet.</p>
+          <button class="outlineBtn" type="button" @click="router.back()">Go Back</button>
+        </div>
+      </div>
+    </section>
+
+    <!-- START -->
+    <section v-else-if="state === 'start'" class="centerPad">
+      <div class="wrap">
+        <button class="ghostBack" type="button" @click="router.back()">← Back</button>
 
         <div class="card padLg center stackLg">
           <div class="badgeBig pop">
@@ -14,8 +30,8 @@
           </div>
 
           <div class="stackSm">
-            <h1 class="h1">Daily Quiz Challenge</h1>
-            <p class="muted">Test your CS knowledge across multiple subjects</p>
+            <h1 class="h1">{{ quiz.title }}</h1>
+            <p class="muted">{{ quiz.subject }} • {{ quiz.difficulty }}</p>
           </div>
 
           <div class="facts">
@@ -24,41 +40,29 @@
               ><span class="strong">{{ questions.length }}</span>
             </div>
             <div class="factRow">
-              <span class="muted">Time per question:</span
-              ><span class="strong">{{ timePer }} seconds</span>
+              <span class="muted">Time per question:</span>
+              <span class="strong">{{ timePer }} seconds</span>
             </div>
             <div class="factRow">
               <span class="muted">Max points:</span><span class="strong">{{ maxPoints }} XP</span>
             </div>
           </div>
 
-          <button
-            class="ctaBtn"
-            type="button"
-            @click="startQuiz"
-            :disabled="loadingDaily || !questions.length"
-          >
-            <span v-if="loadingDaily">Loading…</span>
-            <span v-else>Start Quiz</span>
-            <Zap class="mini" />
+          <button class="ctaBtn" type="button" @click="startQuiz">
+            Start Quiz <Zap class="mini" />
           </button>
-
-          <p v-if="dailyError" class="muted" style="text-align: center">{{ dailyError }}</p>
         </div>
       </div>
-
-      <BottomNavbar currentPage="quiz" />
     </section>
 
     <!-- PLAYING -->
-    <section v-else-if="quizState === 'playing'" class="pad">
+    <section v-else-if="state === 'playing'" class="pad">
       <div class="wrap">
-        <!-- Header -->
         <header class="playingHead">
           <button
             class="ghostIcon"
             type="button"
-            @click="quizState = 'start'"
+            @click="state = 'start'"
             aria-label="Back to start"
           >
             <ArrowLeft class="mini" />
@@ -72,62 +76,40 @@
 
         <div class="meta">
           <div class="metaRow">
-            <span class="muted">Question {{ currentQuestion + 1 }} of {{ questions.length }}</span>
-            <span class="badge" :class="diffBadgeClass(question.difficulty)">{{
-              question.difficulty
-            }}</span>
+            <span class="muted">Question {{ qIndex + 1 }} of {{ questions.length }}</span>
+            <span class="badge" :class="diffBadgeClass(q.difficulty)">{{ q.difficulty }}</span>
           </div>
 
-          <div
-            class="progressTrack small"
-            role="progressbar"
-            :aria-valuenow="progress"
-            aria-valuemin="0"
-            aria-valuemax="100"
-          >
+          <div class="progressTrack small" role="progressbar" :aria-valuenow="progress">
             <div class="progressFill" :style="{ width: progress + '%' }"></div>
           </div>
         </div>
 
-        <!-- Question -->
         <div class="card padLg stackMd">
           <div class="center stackSm">
-            <span class="outlineBadge">{{ question.subject }}</span>
-            <h2 class="h2">{{ question.question }}</h2>
+            <span class="outlineBadge">{{ q.subject }}</span>
+            <h2 class="h2">{{ q.question }}</h2>
           </div>
         </div>
 
-        <!-- Options -->
         <div class="stackSm" style="margin-top: 14px">
           <button
-            v-for="(opt, idx) in question.options"
+            v-for="(opt, idx) in q.options"
             :key="idx"
             class="optionBtn"
             type="button"
-            :disabled="selectedAnswer !== null"
-            @click="handleAnswerSelect(idx)"
+            :disabled="selected !== null"
+            @click="handleAnswer(idx)"
           >
             <span class="optLetter">{{ String.fromCharCode(65 + idx) }}</span>
             <span class="optText">{{ opt }}</span>
           </button>
         </div>
       </div>
-
-      <!-- Confetti -->
-      <div v-if="showConfetti" class="confetti" aria-hidden="true">
-        <span
-          v-for="c in confettiPieces"
-          :key="c.id"
-          class="confettiPiece"
-          :style="{ left: c.left, animationDelay: c.delay }"
-        />
-      </div>
-
-      <BottomNavbar currentPage="quiz" />
     </section>
 
     <!-- FEEDBACK -->
-    <section v-else-if="quizState === 'feedback'" class="centerPad">
+    <section v-else-if="state === 'feedback'" class="centerPad">
       <div class="wrap">
         <div class="card padLg stackMd" :class="isCorrect ? 'okCard' : 'badCard'">
           <div class="resultIcon" :class="isCorrect ? 'okIcon' : 'badIcon'">
@@ -140,30 +122,27 @@
             <h2 class="h2" :class="isCorrect ? 'okText' : 'badText'">
               {{ isTimeUp ? "Time's Up!" : isCorrect ? 'Correct!' : 'Incorrect!' }}
             </h2>
-            <p v-if="isCorrect" class="okText strong">+{{ question.points }} XP</p>
+            <p v-if="isCorrect" class="okText strong">+{{ q.points }} XP</p>
           </div>
 
           <div class="box">
             <div class="boxTitle">Correct Answer:</div>
             <div class="boxText muted">
-              {{ String.fromCharCode(65 + question.correctAnswer) }}.
-              {{ question.options[question.correctAnswer] }}
+              {{ String.fromCharCode(65 + q.correctAnswer) }}. {{ q.options[q.correctAnswer] }}
             </div>
           </div>
 
           <div class="box">
             <div class="boxTitle">Explanation:</div>
-            <div class="boxText muted">{{ question.explanation }}</div>
+            <div class="boxText muted">{{ q.explanation }}</div>
           </div>
         </div>
 
         <button class="ctaBtn" type="button" @click="nextQuestion">
-          {{ currentQuestion < questions.length - 1 ? 'Next Question' : 'View Results' }}
+          {{ qIndex < questions.length - 1 ? 'Next Question' : 'View Results' }}
           <ChevronRight class="mini" />
         </button>
       </div>
-
-      <BottomNavbar currentPage="quiz" />
     </section>
 
     <!-- COMPLETE -->
@@ -185,283 +164,330 @@
               <div class="muted">Total XP</div>
             </div>
             <div class="statBlock">
-              <div class="statBig">{{ percentage }}%</div>
+              <div class="statBig">{{ pct }}%</div>
               <div class="muted">Accuracy</div>
             </div>
           </div>
 
           <div class="center">
-            <div class="statBig">{{ correctAnswers }}/{{ questions.length }}</div>
+            <div class="statBig">{{ correctCount }}/{{ questions.length }}</div>
             <div class="muted">Correct Answers</div>
           </div>
 
           <div class="stackSm" style="width: 100%">
-            <button class="ctaBtn" type="button" @click="restartQuiz">Try Again</button>
-
+            <button class="ctaBtn" type="button" @click="restart">Try Again</button>
             <button class="outlineBtn" type="button" @click="router.push('/dashboard')">
               Back to Dashboard
             </button>
           </div>
+
+          <!-- opcional: si quieres mostrar si fue perfect -->
+          <p v-if="isPerfect" class="muted" style="text-align: center">
+            Perfect run! 🎯 (awards can trigger here)
+          </p>
         </div>
       </div>
-
-      <BottomNavbar currentPage="quiz" />
     </section>
   </main>
 </template>
 
 <script setup>
 import { computed, onBeforeUnmount, onMounted, ref, watch } from 'vue'
-import { useRouter } from 'vue-router'
-import BottomNavbar from '@/components/BottomNavbar.vue'
+import { useRoute, useRouter } from 'vue-router'
 import {
+  ArrowLeft,
   Clock,
   CheckCircle,
   XCircle,
   Trophy,
-  ArrowLeft,
-  Zap,
-  Target,
   ChevronRight,
+  Target,
+  Zap,
 } from 'lucide-vue-next'
 
 import { db } from '@/firebase/config'
-import { collection, query, orderBy, limit, getDocs } from 'firebase/firestore'
+import {
+  doc,
+  collection,
+  onSnapshot,
+  query,
+  orderBy,
+  // runTransaction,
+  // serverTimestamp,
+  // increment,
+} from 'firebase/firestore'
 
-/** -----------------------
- * Firestore loading
- * ---------------------- */
+// If you also use Firebase Auth in web:
+import { useAuth } from '@/composables/useAuth'
+import { awardQuizOnceAndUpdateProgress } from '@/lib/quizAwards'
+
 const router = useRouter()
+const route = useRoute()
+const quizId = computed(() => String(route.params.quizId || ''))
+const { user } = useAuth()
 
-const loadingDaily = ref(true)
-const dailyError = ref(null)
+// evita que se dispare varias veces en renders rápidos
+const awardRan = ref(false)
 
-const quizMeta = ref(null) // doc de quizzes/{id}
-const questions = ref([]) // subcollection quizzes/{id}/questions
+/** ---- Types (informal en JS) ----
+quiz: { title, subject, difficulty, timePerQuestion? }
+question: { subject, question, options, correctAnswer, explanation, difficulty, points }
+----------------------------------*/
 
-// si luego quieres “el último publicado”, lo ideal es orderBy("publishedAt","desc").
-// como todavía te da igual, dejo title desc, PERO puedes cambiarlo a publishedAt cuando lo tengas.
-async function loadDailyQuiz() {
-  loadingDaily.value = true
-  dailyError.value = null
-  quizMeta.value = null
-  questions.value = []
+const quiz = ref(null)
+const questions = ref([])
+const loading = ref(true)
+const error = ref(null)
 
-  try {
-    // 1) obtiene “el último” quiz (por title desc)
-    const q = query(collection(db, 'quizzes'), orderBy('title', 'desc'), limit(1))
-    const snap = await getDocs(q)
-
-    if (snap.empty) {
-      dailyError.value = 'No hay quizzes publicados.'
-      return
-    }
-
-    const quizDoc = snap.docs[0]
-    quizMeta.value = { id: quizDoc.id, ...quizDoc.data() }
-
-    // 2) carga preguntas del quiz
-    const qsRef = collection(db, 'quizzes', quizDoc.id, 'questions')
-    const qsQuery = query(qsRef, orderBy('order', 'asc'))
-    const qsSnap = await getDocs(qsQuery)
-
-    const list = qsSnap.docs.map((d) => ({ id: d.id, ...d.data() }))
-    questions.value = list
-
-    if (!questions.value.length) {
-      dailyError.value = 'Este quiz está vacío (no tiene preguntas).'
-    }
-  } catch (e) {
-    console.error('DailyQuiz load error:', e)
-    dailyError.value = e?.message ?? 'Error cargando el daily quiz.'
-  } finally {
-    loadingDaily.value = false
-  }
-}
-
-onMounted(loadDailyQuiz)
-
-/** -----------------------
- * Quiz engine (tu lógica)
- * ---------------------- */
-const quizState = ref('start') // "start" | "playing" | "feedback" | "complete"
-const currentQuestion = ref(0)
-const selectedAnswer = ref(null) // number | -1 for timeup
+// game state
+const state = ref('start') // start | playing | feedback | complete
+const qIndex = ref(0)
+const selected = ref(null) // number | -1 for timeup
 const score = ref(0)
-const correctAnswers = ref(0)
+const correctCount = ref(0)
 const timeLeft = ref(30)
-const showConfetti = ref(false)
-const answers = ref([])
+const perfectSoFar = ref(true)
 
-const timePer = computed(() => Number(quizMeta.value?.timePerQuestion ?? 30))
+const q = computed(() => questions.value[qIndex.value])
+const timePer = computed(() => Number(quiz.value?.timePerQuestion ?? 30))
 
-const question = computed(() => questions.value[currentQuestion.value])
-const progress = computed(() => {
-  const total = Math.max(1, questions.value.length)
-  return Math.round(((currentQuestion.value + 1) / total) * 100)
-})
+const progress = computed(() =>
+  Math.round(((qIndex.value + 1) / Math.max(1, questions.value.length)) * 100),
+)
 const maxPoints = computed(() => questions.value.reduce((sum, q) => sum + Number(q.points ?? 0), 0))
+const pct = computed(() =>
+  Math.round((correctCount.value / Math.max(1, questions.value.length)) * 100),
+)
 
-const dailyTitle = computed(() => quizMeta.value?.title ?? 'Daily Quiz Challenge')
+const isTimeUp = computed(() => selected.value === -1)
+const isCorrect = computed(() => selected.value === q.value?.correctAnswer)
+const isPerfect = computed(
+  () => perfectSoFar.value && correctCount.value === questions.value.length,
+)
 
-const isTimeUp = computed(() => selectedAnswer.value === -1)
-const isCorrect = computed(() => selectedAnswer.value === question.value?.correctAnswer)
+// --- listeners cleanup
+let unsubQuiz = null
+let unsubQs = null
 
-const percentage = computed(() => {
-  const total = Math.max(1, questions.value.length)
-  return Math.round((correctAnswers.value / total) * 100)
+onMounted(() => {
+  if (!quizId.value) return
+  loading.value = true
+  error.value = null
+
+  unsubQuiz = onSnapshot(
+    doc(db, 'quizzes', quizId.value),
+    (snap) => {
+      if (!snap.exists()) {
+        quiz.value = null
+        loading.value = false
+        router.back()
+        return
+      }
+      quiz.value = snap.data()
+    },
+    (e) => {
+      console.error(e)
+      error.value = 'Error loading quiz.'
+      loading.value = false
+    },
+  )
+
+  unsubQs = onSnapshot(
+    query(collection(db, 'quizzes', quizId.value, 'questions'), orderBy('order', 'asc')),
+    (snap) => {
+      questions.value = snap.docs.map((d) => ({ id: d.id, ...d.data() }))
+      loading.value = false
+    },
+    (e) => {
+      console.error(e)
+      error.value = 'Error loading questions.'
+      loading.value = false
+    },
+  )
 })
 
-/* ----- Timer (sin zombies) ----- */
-let t = null
+onBeforeUnmount(() => {
+  if (unsubQuiz) unsubQuiz()
+  if (unsubQs) unsubQs()
+})
 
+// ---- Timer (sin interval zombie) ----
+let t = null
 const clearTimer = () => {
   if (t) {
     clearTimeout(t)
     t = null
   }
 }
-
 const tick = () => {
   clearTimer()
-  if (quizState.value !== 'playing') return
+  if (state.value !== 'playing') return
   if (timeLeft.value <= 0) return
 
   t = setTimeout(() => {
     timeLeft.value -= 1
-    if (timeLeft.value <= 0 && quizState.value === 'playing') handleTimeUp()
+    if (timeLeft.value <= 0 && state.value === 'playing') handleTimeUp()
     else tick()
   }, 1000)
 }
-
-watch([quizState, timeLeft], () => {
-  if (quizState.value === 'playing') tick()
+watch([state, timeLeft], () => {
+  if (state.value === 'playing') tick()
   else clearTimer()
 })
+onBeforeUnmount(clearTimer)
 
-onBeforeUnmount(() => clearTimer())
-
-/* ----- Confetti pieces ----- */
-const confettiPieces = computed(() =>
-  Array.from({ length: 22 }).map((_, i) => ({
-    id: i,
-    left: `${Math.random() * 100}%`,
-    delay: `${Math.random() * 1.4}s`,
-  })),
-)
-
+// ---- actions ----
 const startQuiz = () => {
-  if (loadingDaily.value) return
   if (!questions.value.length) return
-
-  quizState.value = 'playing'
-  currentQuestion.value = 0
-  selectedAnswer.value = null
+  state.value = 'playing'
+  qIndex.value = 0
+  selected.value = null
   score.value = 0
-  correctAnswers.value = 0
+  correctCount.value = 0
+  perfectSoFar.value = true
   timeLeft.value = timePer.value
-  answers.value = []
   tick()
 }
 
-const handleAnswerSelect = (idx) => {
-  if (selectedAnswer.value !== null) return
-  if (!question.value) return
+const handleAnswer = (idx) => {
+  if (selected.value !== null || state.value !== 'playing') return
+  selected.value = idx
 
-  selectedAnswer.value = idx
-  const ok = idx === question.value.correctAnswer
+  const ok = idx === q.value.correctAnswer
+  if (!ok) perfectSoFar.value = false
 
   if (ok) {
-    score.value += Number(question.value.points ?? 0)
-    correctAnswers.value += 1
-    showConfetti.value = true
-    setTimeout(() => (showConfetti.value = false), 1400)
+    score.value += Number(q.value.points ?? 0)
+    correctCount.value += 1
   }
 
-  answers.value = [...answers.value, ok]
-  quizState.value = 'feedback'
+  state.value = 'feedback'
 }
 
 const handleTimeUp = () => {
-  if (quizState.value !== 'playing') return
-  selectedAnswer.value = -1
-  answers.value = [...answers.value, false]
-  quizState.value = 'feedback'
+  if (state.value !== 'playing') return
+  selected.value = -1
+  perfectSoFar.value = false
+  state.value = 'feedback'
 }
 
 const nextQuestion = () => {
-  if (currentQuestion.value < questions.value.length - 1) {
-    currentQuestion.value += 1
-    selectedAnswer.value = null
+  if (qIndex.value < questions.value.length - 1) {
+    qIndex.value += 1
+    selected.value = null
     timeLeft.value = timePer.value
-    quizState.value = 'playing'
+    state.value = 'playing'
     tick()
   } else {
-    quizState.value = 'complete'
+    state.value = 'complete'
   }
 }
 
-const restartQuiz = () => {
-  quizState.value = 'start'
-  currentQuestion.value = 0
-  selectedAnswer.value = null
+const restart = () => {
+  state.value = 'start'
+  qIndex.value = 0
+  selected.value = null
   score.value = 0
-  correctAnswers.value = 0
+  correctCount.value = 0
+  perfectSoFar.value = true
   timeLeft.value = timePer.value
-  answers.value = []
 }
 
+// rating helpers
 const diffBadgeClass = (d) => {
   if (d === 'Easy') return 'bEasy'
   if (d === 'Medium') return 'bMed'
   return 'bHard'
 }
 
+watch(state, async (s) => {
+  if (s !== 'complete') {
+    awardRan.value = false
+    return
+  }
+  if (!isPerfect.value) return
+  if (awardRan.value) return
+
+  const uid = user.value?.uid
+  if (!uid) {
+    console.warn('No uid (did you call initAuth() in main.js?)')
+    return
+  }
+  if (!quizId.value) return
+
+  awardRan.value = true
+  const totalQuizPoints = maxPoints.value
+
+  try {
+    const awarded = await awardQuizOnceAndUpdateProgress({
+      db,
+      uid: user.value.uid,
+      quizId: quizId.value,
+      points: totalQuizPoints,
+      subject: quiz.value.subject,
+      mirrorToProfile: true,
+    })
+    console.log('Award result:', awarded)
+  } catch (e) {
+    console.error('Award failed:', e?.code, e?.message, e)
+    awardRan.value = false
+  }
+})
+
 const getScoreRating = () => {
-  const pct = percentage.value
-  if (pct >= 90) return { text: 'Excellent!', emoji: '🏆', cls: 'rGold' }
-  if (pct >= 70) return { text: 'Great Job!', emoji: '⭐', cls: 'rBlue' }
-  if (pct >= 50) return { text: 'Good Work!', emoji: '👍', cls: 'rGreen' }
+  const p = pct.value
+  if (p >= 90) return { text: 'Excellent!', emoji: '🏆', cls: 'rGold' }
+  if (p >= 70) return { text: 'Great Job!', emoji: '⭐', cls: 'rBlue' }
+  if (p >= 50) return { text: 'Good Work!', emoji: '👍', cls: 'rGreen' }
   return { text: 'Keep Practicing!', emoji: '💪', cls: 'rOrange' }
 }
-
 const ratingText = computed(() => getScoreRating().text)
 const ratingEmoji = computed(() => getScoreRating().emoji)
 const ratingClass = computed(() => getScoreRating().cls)
+
+/**
+ * OPTIONAL: Award perfect run ONCE
+ * - Necesitas tener auth web listo (getAuth()) y reglas/claims.
+ * - Si lo quieres, te lo implemento igualito con runTransaction + "claims/quiz_{id}".
+ */
+// watch(state, async (s) => {
+//   if (s !== "complete") return
+//   if (!isPerfect.value) return
+//   const uid = getAuth().currentUser?.uid
+//   if (!uid) return
+//   const points = maxPoints.value
+//   await awardQuizOnceAndUpdateProgressWeb({ uid, quizId: quizId.value, points, subject: quiz.value?.subject })
+// })
 </script>
 
 <style scoped>
-/* Background family */
+/* Reusa tu estética (copié lo básico; puedes pegar tus estilos existentes si ya los tienes) */
 .quiz {
   min-height: 100vh;
   width: 100vw;
   color: rgba(255, 255, 255, 0.92);
-  padding-bottom: 88px;
-
+  padding-bottom: 24px;
   background:
     radial-gradient(900px 520px at 20% 10%, rgba(216, 70, 239, 0.18), transparent 55%),
     radial-gradient(900px 520px at 78% 18%, rgba(59, 130, 246, 0.18), transparent 55%),
-    radial-gradient(900px 520px at 50% 96%, rgba(16, 185, 129, 0.08), transparent 60%),
-    linear-gradient(180deg, #0b0a14 0%, #070a13 55%, #06151a 100%);
+    linear-gradient(180deg, #0b0b10 0%, #070a13 70%, #06151a 100%);
   overflow-x: hidden;
 }
-
 .wrap {
   width: min(520px, 92vw);
   margin: 0 auto;
 }
 .pad {
-  padding: 18px 0 0;
+  padding: 18px 0 28px;
 }
 .centerPad {
   min-height: 100vh;
   display: flex;
   align-items: center;
   justify-content: center;
-  padding: 18px 0 0;
+  padding: 18px 0;
 }
 
-/* base card */
 .card {
   border-radius: 20px;
   background: rgba(255, 255, 255, 0.035);
@@ -492,13 +518,11 @@ const ratingClass = computed(() => getScoreRating().cls)
   margin: 0;
   font-size: 22px;
   font-weight: 950;
-  letter-spacing: -0.01em;
 }
 .h2 {
   margin: 0;
   font-size: 16px;
   font-weight: 900;
-  letter-spacing: -0.01em;
   line-height: 1.35;
 }
 .muted {
@@ -510,15 +534,11 @@ const ratingClass = computed(() => getScoreRating().cls)
   font-weight: 900;
 }
 
-/* Start back */
 .ghostBack {
   border: 0;
   background: transparent;
   color: rgba(210, 225, 255, 0.8);
   font-weight: 900;
-  display: inline-flex;
-  align-items: center;
-  gap: 8px;
   padding: 8px 10px;
   border-radius: 12px;
   cursor: pointer;
@@ -534,9 +554,6 @@ const ratingClass = computed(() => getScoreRating().cls)
   display: grid;
   place-items: center;
   background: linear-gradient(135deg, #d946ef 0%, #3b82f6 100%);
-  box-shadow:
-    0 14px 34px rgba(59, 130, 246, 0.18),
-    0 14px 34px rgba(217, 70, 239, 0.12);
 }
 .badgeBig.success {
   background: linear-gradient(135deg, #10b981 0%, #06b6d4 100%);
@@ -574,28 +591,31 @@ const ratingClass = computed(() => getScoreRating().cls)
   font-weight: 950;
   color: rgba(255, 255, 255, 0.95);
   background: linear-gradient(90deg, #d946ef 0%, #3b82f6 100%);
-  box-shadow:
-    0 14px 34px rgba(59, 130, 246, 0.18),
-    0 14px 34px rgba(217, 70, 239, 0.12);
   display: inline-flex;
   align-items: center;
   justify-content: center;
   gap: 10px;
   cursor: pointer;
-  transition:
-    transform 160ms ease,
-    filter 160ms ease,
-    opacity 160ms ease;
 }
 .ctaBtn:hover {
-  transform: translateY(-1px);
   filter: brightness(1.03);
+  transform: translateY(-1px);
 }
 .ctaBtn:active {
   transform: translateY(0px) scale(0.99);
 }
 
-/* Playing head */
+.outlineBtn {
+  width: 100%;
+  height: 52px;
+  border-radius: 16px;
+  border: 1px solid rgba(160, 190, 255, 0.2);
+  background: rgba(255, 255, 255, 0.03);
+  color: rgba(255, 255, 255, 0.9);
+  font-weight: 950;
+  cursor: pointer;
+}
+
 .playingHead {
   display: flex;
   align-items: center;
@@ -614,11 +634,7 @@ const ratingClass = computed(() => getScoreRating().cls)
   place-items: center;
   cursor: pointer;
 }
-.ghostIcon:hover {
-  background: rgba(255, 255, 255, 0.045);
-  border-color: rgba(160, 190, 255, 0.28);
-  transform: translateY(-1px);
-}
+
 .timer {
   display: flex;
   align-items: center;
@@ -647,7 +663,6 @@ const ratingClass = computed(() => getScoreRating().cls)
   gap: 10px;
   font-size: 13px;
 }
-
 .badge {
   font-size: 10px;
   font-weight: 950;
@@ -670,14 +685,11 @@ const ratingClass = computed(() => getScoreRating().cls)
 
 .progressTrack {
   width: 100%;
-  height: 10px;
+  height: 9px;
   border-radius: 999px;
   background: rgba(255, 255, 255, 0.06);
   border: 1px solid rgba(160, 190, 255, 0.14);
   overflow: hidden;
-}
-.progressTrack.small {
-  height: 9px;
 }
 .progressFill {
   height: 100%;
@@ -686,7 +698,6 @@ const ratingClass = computed(() => getScoreRating().cls)
   transition: width 260ms ease;
 }
 
-/* Subject outline */
 .outlineBadge {
   display: inline-flex;
   padding: 6px 10px;
@@ -695,14 +706,12 @@ const ratingClass = computed(() => getScoreRating().cls)
   background: rgba(255, 255, 255, 0.03);
   font-weight: 900;
   font-size: 12px;
-  color: rgba(255, 255, 255, 0.86);
 }
 
-/* options */
 .optionBtn {
   width: 100%;
   border-radius: 16px;
-  padding: 14px 14px;
+  padding: 14px;
   border: 1px solid rgba(160, 190, 255, 0.16);
   background: rgba(255, 255, 255, 0.03);
   color: rgba(255, 255, 255, 0.9);
@@ -710,20 +719,12 @@ const ratingClass = computed(() => getScoreRating().cls)
   align-items: center;
   gap: 12px;
   cursor: pointer;
-  transition:
-    transform 160ms ease,
-    border-color 160ms ease,
-    background 160ms ease,
-    opacity 160ms ease;
   text-align: left;
 }
 .optionBtn:hover {
   transform: translateY(-1px);
-  border-color: rgba(217, 70, 239, 0.28);
   background: rgba(255, 255, 255, 0.045);
-}
-.optionBtn:active {
-  transform: scale(0.99);
+  border-color: rgba(217, 70, 239, 0.28);
 }
 .optionBtn:disabled {
   opacity: 0.55;
@@ -746,7 +747,6 @@ const ratingClass = computed(() => getScoreRating().cls)
   line-height: 1.35;
 }
 
-/* feedback */
 .resultIcon {
   width: 64px;
   height: 64px;
@@ -778,7 +778,6 @@ const ratingClass = computed(() => getScoreRating().cls)
 .badText {
   color: #ef4444;
 }
-
 .okCard {
   border-color: rgba(16, 185, 129, 0.2);
   background: rgba(16, 185, 129, 0.06);
@@ -804,7 +803,6 @@ const ratingClass = computed(() => getScoreRating().cls)
   font-size: 13px;
 }
 
-/* complete */
 .rating {
   margin: 0;
   font-weight: 950;
@@ -840,60 +838,25 @@ const ratingClass = computed(() => getScoreRating().cls)
   font-weight: 950;
 }
 
-.outlineBtn {
-  width: 100%;
-  height: 52px;
-  border-radius: 16px;
-  border: 1px solid rgba(160, 190, 255, 0.2);
-  background: rgba(255, 255, 255, 0.03);
-  color: rgba(255, 255, 255, 0.9);
-  font-weight: 950;
-  cursor: pointer;
-  transition:
-    transform 160ms ease,
-    border-color 160ms ease,
-    background 160ms ease;
-}
-.outlineBtn:hover {
-  transform: translateY(-1px);
-  border-color: rgba(160, 190, 255, 0.3);
-  background: rgba(255, 255, 255, 0.045);
-}
-.outlineBtn:active {
-  transform: scale(0.99);
-}
-
 .mini {
   width: 18px;
   height: 18px;
 }
 
-/* confetti */
-.confetti {
-  position: fixed;
-  inset: 0;
-  pointer-events: none;
-  overflow: hidden;
+.spinner {
+  width: 28px;
+  height: 28px;
+  border-radius: 999px;
+  border: 3px solid rgba(255, 255, 255, 0.14);
+  border-top-color: rgba(59, 130, 246, 0.95);
+  animation: spin 0.85s linear infinite;
 }
-.confettiPiece {
-  position: absolute;
-  top: -10px;
-  width: 8px;
-  height: 8px;
-  border-radius: 2px;
-  background: #fbbf24;
-  animation: confetti 1.4s ease-in forwards;
-}
-@keyframes confetti {
-  from {
-    transform: translateY(0) rotate(0deg);
-    opacity: 1;
-  }
+@keyframes spin {
   to {
-    transform: translateY(110vh) rotate(360deg);
-    opacity: 0;
+    transform: rotate(360deg);
   }
 }
+
 @keyframes pop {
   0% {
     transform: scale(0.86);

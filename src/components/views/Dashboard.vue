@@ -5,11 +5,11 @@
       <div class="row">
         <div class="user">
           <div class="avatarBox" aria-hidden="true">
-            <span class="avatarEmoji">{{ userData.avatar }}</span>
+            <span class="avatarEmoji">{{ avatarEmoji }}</span>
           </div>
           <div class="userText">
-            <div class="hello">Hi, {{ userData.username }}!</div>
-            <div class="sub">Level {{ userData.level }} • Rank #{{ userData.rank }}</div>
+            <div class="hello">Hi, {{ profile?.username ?? 'sin nombre' }}!</div>
+            <div class="sub">Level {{ levelInfo.level }} • Rank #{{ userData.rank }}</div>
           </div>
         </div>
 
@@ -28,8 +28,8 @@
 
       <section class="card xpCard">
         <div class="xpRow">
-          <span class="xpLabel">Progress to Level {{ userData.level + 1 }}</span>
-          <span class="xpValue">{{ userData.xp }}/{{ userData.xpToNext }} XP</span>
+          <span class="xpLabel">Progress to Level {{ levelInfo.level + 1 }}</span>
+          <span class="xpValue">{{ levelInfo.xpWithinLevel }}/ 500 XP</span>
         </div>
 
         <div
@@ -44,7 +44,7 @@
 
         <div class="xpHint">
           <span>Keep going! You're doing great</span>
-          <span class="xpToGo">{{ userData.xpToNext - userData.xp }} XP to go</span>
+          <span class="xpToGo">{{ levelInfo.xpToNext }} XP to go</span>
         </div>
       </section>
     </header>
@@ -130,6 +130,7 @@
           v-for="s in CS_SUBJECTS"
           :key="s.id"
           class="card subject"
+          @click="goToQuizzes(s.name)"
           role="button"
           tabindex="0"
         >
@@ -139,12 +140,12 @@
             </div>
             <div class="subMeta">
               <div class="subName">{{ s.name }}</div>
-              <div class="subPct">{{ s.progress }}%</div>
+              <div class="subPct">{{ Math.round(s.progress * 100) }}%</div>
             </div>
           </div>
 
           <div class="progressTrack small">
-            <div class="progressFill" :style="{ width: s.progress + '%' }"></div>
+            <div class="progressFill" :style="{ width: `${s.progress * 100}%` }"></div>
           </div>
         </article>
       </div>
@@ -217,30 +218,96 @@ import {
   Gift,
 } from 'lucide-vue-next'
 import BottomNavbar from '@/components/BottomNavbar.vue'
+import { useUserProfile } from '@/composables/useUserProfile'
+import { useUserProgress } from '@/composables/useUserProgress'
+import { computeLevel } from '@/utils/level-utils'
+
+const { profile, loading: loadingProfile } = useUserProfile()
+const { progress, loading: loadingProgress } = useUserProgress()
 
 const router = useRouter()
 const selectedTab = ref('home')
+const totalXp = progress?.value.totalXp ?? profile?.value.xp ?? 0
+const levelInfo = computed(() => computeLevel(progress.value.totalXp ?? 0))
 
 const userData = {
   username: 'CodeNinja',
   avatar: '🥷',
-  level: 5,
-  xp: 1250,
-  xpToNext: 1500,
+  level: levelInfo.level,
+  xp: levelInfo.xpWithinLevel,
+  xpToNext: levelInfo.xpToNext,
   streak: 7,
   totalPoints: 3420,
   rank: 42,
   completedToday: 2,
 }
 
-const CS_SUBJECTS = [
-  { id: 'programming', name: 'Programming', icon: Code, colorKey: 'programming', progress: 65 },
-  { id: 'algorithms', name: 'Algorithms', icon: Target, colorKey: 'algorithms', progress: 45 },
-  { id: 'databases', name: 'Databases', icon: Database, colorKey: 'databases', progress: 30 },
-  { id: 'networking', name: 'Networking', icon: Network, colorKey: 'networking', progress: 20 },
-  { id: 'ai', name: 'AI/ML', icon: Brain, colorKey: 'ai', progress: 15 },
-  { id: 'security', name: 'Security', icon: Shield, colorKey: 'security', progress: 10 },
+const AVATAR_OPTIONS = [
+  { id: 'robot', emoji: '🤖', name: 'Robo Coder' },
+  { id: 'wizard', emoji: '🧙‍♂️', name: 'Code Wizard' },
+  { id: 'ninja', emoji: '🥷', name: 'Bug Ninja' },
+  { id: 'scientist', emoji: '👩‍🔬', name: 'Data Scientist' },
+  { id: 'astronaut', emoji: '👨‍🚀', name: 'Space Explorer' },
+  { id: 'superhero', emoji: '🦸‍♀️', name: 'Code Hero' },
 ]
+const avatarEmoji = computed(() => {
+  const id = profile.value?.selectedAvatar
+  return AVATAR_OPTIONS.find((a) => a.id === id)?.emoji ?? '👤'
+})
+
+const norm = (v) => {
+  const n = Number(v ?? 0)
+  return n > 1 ? Math.max(0, Math.min(1, n / 100)) : Math.max(0, Math.min(1, n))
+}
+
+const CS_SUBJECTS = computed(() => [
+  {
+    id: 'programming',
+    name: 'Programming',
+    icon: Code,
+    colorClass: 'bgProg',
+    progress: norm(progress.value?.programmingProgress),
+  },
+  {
+    id: 'algorithms',
+    name: 'Algorithms',
+    icon: Target,
+    colorClass: 'bgAlgo',
+    progress: norm(progress.value?.algorithmsProgress),
+  },
+  {
+    id: 'databases',
+    name: 'Databases',
+    icon: Database,
+    colorClass: 'bgDb',
+    progress: norm(progress.value?.databasesProgress),
+  },
+  {
+    id: 'networking',
+    name: 'Networking',
+    icon: Network,
+    colorClass: 'bgNet',
+    progress: norm(progress.value?.networkingProgress),
+  },
+  {
+    id: 'ai',
+    name: 'AI/ML',
+    icon: Brain,
+    colorClass: 'bgAi',
+    progress: norm(progress.value?.aiProgress),
+  },
+  {
+    id: 'security',
+    name: 'Security',
+    icon: Shield,
+    colorClass: 'bgSec',
+    progress: norm(progress.value?.securityProgress),
+  },
+])
+
+const goToQuizzes = (subjectName) => {
+  router.push({ path: '/quizzes', query: { subject: subjectName } })
+}
 
 const DAILY_CHALLENGES = [
   {
@@ -293,7 +360,7 @@ const RECENT_ACHIEVEMENTS = [
   },
 ]
 
-const xpPercent = computed(() => Math.round((userData.xp / userData.xpToNext) * 100))
+const xpPercent = computed(() => Math.round((levelInfo.xpWithinLevel / 500) * 100))
 
 const go = (path) => router.push(path)
 
@@ -497,6 +564,7 @@ const subjectColor = (key) => {
 .statNum {
   font-size: 18px;
   font-weight: 950;
+  color: #ffff;
 }
 .statLbl {
   font-size: 10px;
@@ -733,6 +801,7 @@ const subjectColor = (key) => {
 .quickTitle {
   font-size: 13px;
   font-weight: 950;
+  color: #ffff;
 }
 .quickSub {
   margin-top: 4px;

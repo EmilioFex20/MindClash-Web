@@ -156,11 +156,13 @@
 </template>
 
 <script setup>
-import { computed, reactive, ref } from 'vue'
+import { computed, reactive, ref, watch } from 'vue'
 import { useRouter } from 'vue-router'
 import { ChevronLeft, ChevronRight, User, Target, Sparkles } from 'lucide-vue-next'
+import { useUsers } from '@/composables/useUsers'
 
 const router = useRouter()
+const { uid, getProfile, saveOnboarding } = useUsers()
 
 const ONBOARDING_STEPS = [
   { id: 'welcome', title: 'Welcome to CodeQuest!', progress: 25 },
@@ -186,6 +188,7 @@ const LEARNING_GOALS = [
 ]
 
 const currentStep = ref(0)
+const checkingProfile = ref(true)
 const isAnimating = ref(false)
 
 const userData = reactive({
@@ -206,6 +209,40 @@ const selectedGoalTitle = computed(
   () => LEARNING_GOALS.find((g) => g.id === userData.learningGoal)?.title || '—',
 )
 
+watch(
+  uid,
+  async (newUid) => {
+    if (!newUid) {
+      // si no hay sesión, decide a dónde mandar:
+      checkingProfile.value = false
+      // router.replace("/login") // recomendado
+      return
+    }
+
+    try {
+      const profile = await getProfile()
+
+      const completed =
+        !!profile?.username?.trim() && !!profile?.selectedAvatar && !!profile?.learningGoal
+
+      if (completed) {
+        router.replace('/dashboard')
+        return
+      }
+
+      // opcional: si ya tenía algo guardado, lo precargas
+      if (profile) {
+        userData.username = profile.username ?? ''
+        userData.selectedAvatar = profile.selectedAvatar ?? ''
+        userData.learningGoal = profile.learningGoal ?? ''
+      }
+    } finally {
+      checkingProfile.value = false
+    }
+  },
+  { immediate: true },
+)
+
 const canProceed = () => {
   switch (currentStep.value) {
     case 0:
@@ -221,16 +258,24 @@ const canProceed = () => {
   }
 }
 
-const handleNext = () => {
+const handleNext = async () => {
   if (currentStep.value < ONBOARDING_STEPS.length - 1) {
     currentStep.value += 1
     return
   }
+  try {
+    if (!uid.value) throw new Error('Missing user id')
 
-  // Done -> dashboard
-  isAnimating.value = true
-  setTimeout(() => (isAnimating.value = false), 650)
-  router.push('/dashboard')
+    await saveOnboarding({
+      username: userData.username,
+      selectedAvatar: userData.selectedAvatar,
+      learningGoal: userData.learningGoal,
+    })
+
+    router.replace('/dashboard')
+  } catch (e) {
+    console.error('Error saving onboarding:', e)
+  }
 }
 
 const handleBack = () => {

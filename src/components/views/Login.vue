@@ -1,25 +1,19 @@
 <template>
   <div class="login-container">
     <h2>Login</h2>
-    
+
     <form @submit.prevent="handleLogin">
       <div class="form-group">
         <label for="email">Email</label>
-        <input 
-          type="email" 
-          id="email" 
-          v-model="email" 
-          required
-          placeholder="Enter your email"
-        />
+        <input type="email" id="email" v-model="email" required placeholder="Enter your email" />
       </div>
 
       <div class="form-group">
         <label for="password">Password</label>
-        <input 
-          type="password" 
-          id="password" 
-          v-model="password" 
+        <input
+          type="password"
+          id="password"
+          v-model="password"
           required
           placeholder="Enter your password"
         />
@@ -35,31 +29,31 @@
     </form>
 
     <p class="signup-link">
-      Don't have an account? 
+      Don't have an account?
       <router-link to="/register">Register here</router-link>
     </p>
   </div>
 </template>
 
-<script setup >
-import { ref } from 'vue';
-import { useRouter } from 'vue-router';
-import { useAuth } from '@/composables/useAuth';
+<script setup>
+import { ref } from 'vue'
+import { useRouter } from 'vue-router'
+import { useAuth } from '@/composables/useAuth'
 
-const router = useRouter();
-const { login, error, loading } = useAuth();
+const router = useRouter()
+const { login, error, loading } = useAuth()
 
-const email = ref('');
-const password = ref('');
+const email = ref('')
+const password = ref('')
 
 const handleLogin = async () => {
   try {
-    await login(email.value, password.value);
-    router.push('/home'); // Redirect after successful login
+    await login(email.value, password.value)
+    router.push('/home') // Redirect after successful login
   } catch (err) {
-    console.error('Login failed:', err);
+    console.error('Login failed:', err)
   }
-};
+}
 </script>
 
 <style scoped>
@@ -69,7 +63,7 @@ const handleLogin = async () => {
   padding: 30px;
   border: 1px solid #ddd;
   border-radius: 8px;
-  box-shadow: 0 2px 10px rgba(0,0,0,0.1);
+  box-shadow: 0 2px 10px rgba(0, 0, 0, 0.1);
 }
 
 h2 {
@@ -98,7 +92,7 @@ input {
 button {
   width: 100%;
   padding: 12px;
-  background-color: #4CAF50;
+  background-color: #4caf50;
   color: white;
   border: none;
   border-radius: 4px;

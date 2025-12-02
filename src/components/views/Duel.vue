@@ -1,317 +1,291 @@
 <template>
   <main class="duel">
-    <!-- LOBBY -->
-    <section v-if="duelState === 'lobby'" class="pad">
-      <div class="wrap stackLg">
-        <header class="topBar">
-          <button class="ghostBack" type="button" @click="router.back()">
-            <ArrowLeft class="mini" />
-            Back
-          </button>
-
-          <span class="onlineBadge">
-            <span class="dot"></span>
-            Online
-          </span>
-        </header>
-
-        <div class="center stackSm">
-          <div class="badgeBig pop">
-            <Swords class="bigIcon" />
-          </div>
-          <div>
-            <h1 class="h1">1v1 Duel Arena</h1>
-            <p class="muted">Challenge other players in real-time</p>
-          </div>
-        </div>
-
-        <div class="card padLg stackSm">
-          <h2 class="h2">How it works:</h2>
-          <div class="how">
-            <div class="howRow">
-              <span class="step">1</span>
-              <span class="muted">Answer questions faster than your opponent</span>
-            </div>
-            <div class="howRow">
-              <span class="step">2</span>
-              <span class="muted">Each correct answer gives you 100 points</span>
-            </div>
-            <div class="howRow">
-              <span class="step">3</span>
-              <span class="muted">Highest score wins the duel!</span>
-            </div>
-          </div>
-        </div>
-
-        <div class="stackSm">
-          <h2 class="h2">Available Opponents</h2>
-
-          <div class="stackSm">
-            <button
-              v-for="o in MOCK_OPPONENTS"
-              :key="o.id"
-              class="card opp"
-              type="button"
-              @click="selectOpponentAndMatch(o)"
-            >
-              <div class="oppAvatar">
-                <span class="emoji">{{ o.avatar }}</span>
-              </div>
-
-              <div class="oppMeta">
-                <div class="oppTop">
-                  <span class="oppName">{{ o.name }}</span>
-                  <span class="lvlBadge">Level {{ o.level }}</span>
-                </div>
-                <div class="muted small">{{ o.winRate }}% win rate</div>
-              </div>
-
-              <div class="oppStatus">
-                <span class="dot good"></span>
-                <span class="goodText">Online</span>
-              </div>
-            </button>
-          </div>
-        </div>
-
-        <button class="ctaBtn" type="button" @click="startMatchmaking">
-          Quick Match <Zap class="mini" />
-        </button>
-      </div>
-
-      <BottomNavbar currentPage="duel" />
-    </section>
-
-    <!-- MATCHMAKING -->
-    <section v-else-if="duelState === 'matchmaking'" class="centerPad">
+    <!-- INVITE OVERLAY -->
+    <section v-if="pendingInvites.length > 0" class="inviteOverlay">
       <div class="wrap">
-        <div class="card padXL center stackLg">
-          <div class="mmIcon pulse">
-            <Users class="midIcon" />
-          </div>
-
-          <div class="stackSm">
-            <h2 class="h2Big">Finding Opponent...</h2>
-            <p class="muted">Matching you with a player of similar skill</p>
-          </div>
-
-          <div class="dots" aria-hidden="true">
-            <span class="bDot" style="animation-delay: 0s"></span>
-            <span class="bDot" style="animation-delay: 0.2s"></span>
-            <span class="bDot" style="animation-delay: 0.4s"></span>
-          </div>
-        </div>
-      </div>
-
-      <BottomNavbar currentPage="duel" />
-    </section>
-
-    <!-- VERSUS -->
-    <section v-else-if="duelState === 'versus'" class="centerPad">
-      <div class="wrap stackLg">
-        <div class="center">
-          <h1 class="h1">Duel Starting!</h1>
-          <p class="muted">Get ready to battle</p>
-        </div>
-
         <div class="card padLg">
-          <div class="vsRow">
-            <div class="pCol">
-              <div class="pAvatar pMe"><span class="emoji">🥷</span></div>
-              <div class="pName">You</div>
-              <div class="muted tiny">Level 5</div>
-            </div>
+          <div class="stackSm">
+            <h3 class="h2">Duel Invite</h3>
+            <p class="muted">{{ pendingInvites[0]?.fromUid }} challenged you to a 1v1. Accept?</p>
 
-            <div class="vsCol">
-              <div class="vsIcon"><Swords class="mini badText" /></div>
-              <div class="vsText">VS</div>
-            </div>
-
-            <div class="pCol">
-              <div class="pAvatar pOpp">
-                <span class="emoji">{{ selectedOpponent?.avatar }}</span>
-              </div>
-              <div class="pName">{{ selectedOpponent?.name }}</div>
-              <div class="muted tiny">Level {{ selectedOpponent?.level }}</div>
-            </div>
-          </div>
-        </div>
-
-        <button class="ctaBtn danger" type="button" @click="startDuel">
-          Start Battle! <Play class="mini" />
-        </button>
-      </div>
-
-      <BottomNavbar currentPage="duel" />
-    </section>
-
-    <!-- PLAYING -->
-    <section v-else-if="duelState === 'playing'" class="pad">
-      <div class="wrap stackMd">
-        <!-- Header -->
-        <header class="playHead">
-          <div class="timer">
-            <Clock class="mini dim" />
-            <span class="time" :class="{ dangerText: timeLeft <= 5 }">{{ timeLeft }}s</span>
-          </div>
-
-          <div class="muted small">
-            Question {{ currentQuestion + 1 }}/{{ DUEL_QUESTIONS.length }}
-          </div>
-        </header>
-
-        <!-- Scores -->
-        <div class="scoreGrid">
-          <div class="card score meScore">
-            <div class="scoreRow">
-              <div class="chip chipMe"><span class="emoji">🥷</span></div>
-              <div>
-                <div class="muted tiny">You</div>
-                <div class="scoreNum">{{ playerScore }}</div>
-              </div>
-            </div>
-          </div>
-
-          <div class="card score oppScore">
-            <div class="scoreRow">
-              <div class="chip chipOpp">
-                <span class="emoji">{{ selectedOpponent?.avatar }}</span>
-              </div>
-              <div>
-                <div class="muted tiny">{{ selectedOpponent?.name }}</div>
-                <div class="scoreNum">{{ opponentScore }}</div>
-              </div>
-            </div>
-          </div>
-        </div>
-
-        <div
-          class="progressTrack"
-          role="progressbar"
-          :aria-valuenow="progress"
-          aria-valuemin="0"
-          aria-valuemax="100"
-        >
-          <div class="progressFill" :style="{ width: progress + '%' }"></div>
-        </div>
-
-        <!-- Question -->
-        <div class="card padLg center stackSm">
-          <span class="outlineBadge">{{ currentQuestionData.subject }}</span>
-          <h2 class="h2">{{ currentQuestionData.question }}</h2>
-        </div>
-
-        <!-- Options -->
-        <div class="stackSm">
-          <button
-            v-for="(opt, idx) in currentQuestionData.options"
-            :key="idx"
-            class="optionBtn"
-            :class="{ selected: selectedAnswer === idx }"
-            type="button"
-            :disabled="selectedAnswer !== null"
-            @click="handleAnswerSelect(idx)"
-          >
-            <span class="optLetter">{{ String.fromCharCode(65 + idx) }}</span>
-            <span class="optText">{{ opt }}</span>
-          </button>
-        </div>
-
-        <!-- Results overlay -->
-        <div v-if="showResults" class="card padSm overlay">
-          <div class="ovRow">
-            <div class="ovSide">
-              <span class="muted small">Your answer:</span>
-              <CheckCircle v-if="playerAnswers[currentQuestion]" class="mini okText" />
-              <XCircle v-else class="mini badText" />
-            </div>
-
-            <div class="ovSide">
-              <span class="muted small">Opponent:</span>
-              <CheckCircle v-if="opponentAnswers[currentQuestion]" class="mini okText" />
-              <XCircle v-else class="mini badText" />
+            <div class="row" style="gap: 10px; margin-top: 8px">
+              <button
+                class="outlineBtn"
+                type="button"
+                @click="pendingInvites[0] && handleDeclineInvite(pendingInvites[0])"
+              >
+                Decline
+              </button>
+              <button
+                class="ctaBtn"
+                type="button"
+                @click="pendingInvites[0] && handleAcceptInvite(pendingInvites[0])"
+              >
+                Accept
+              </button>
             </div>
           </div>
         </div>
       </div>
-
-      <BottomNavbar currentPage="duel" />
     </section>
 
-    <!-- RESULTS -->
-    <section v-else class="centerPad">
+    <section class="pad">
       <div class="wrap">
-        <div class="card padLg center stackLg">
-          <div class="badgeBig pop" :class="resultBadgeClass">
-            <Crown v-if="playerWon" class="bigIcon" />
-            <Star v-else-if="isDraw" class="bigIcon" />
-            <Trophy v-else class="bigIcon" />
+        <!-- LOBBY -->
+        <template v-if="stage === 'lobby'">
+          <header class="topBar">
+            <button
+              class="ghostIcon"
+              type="button"
+              @click="router.push('/dashboard')"
+              aria-label="Back"
+            >
+              ←
+            </button>
+
+            <div class="onlinePill">
+              <span class="dot"></span>
+              <span>Online</span>
+            </div>
+          </header>
+
+          <div class="center stackMd" style="margin-top: 14px">
+            <div class="badgeBig">
+              <span class="bigEmoji">⚔️</span>
+            </div>
+
+            <div class="center stackSm">
+              <h1 class="h1">1v1 Duel Arena</h1>
+              <p class="muted">Challenge other players in real time</p>
+            </div>
           </div>
+
+          <div style="height: 14px" />
+
+          <div class="card padLg">
+            <div class="stackSm">
+              <div class="h2">How it works:</div>
+              <div v-for="(t, i) in howItWorks" :key="i" class="howRow">
+                <div class="howNum">{{ i + 1 }}</div>
+                <div class="muted">{{ t }}</div>
+              </div>
+            </div>
+          </div>
+
+          <div style="height: 14px" />
+
+          <div class="h2" style="margin-bottom: 8px">Online players</div>
 
           <div class="stackSm">
-            <h1 class="h1" :class="resultTitleClass">{{ resultTitle }}</h1>
-            <p class="muted">{{ resultSubtitle }}</p>
+            <div v-if="onlineUsers.length === 0" class="card padLg">
+              <p class="muted">
+                No one’s online right now. Try Quick Match or invite a friend later.
+              </p>
+            </div>
+
+            <div v-else v-for="u in onlineUsers" :key="u.uid" class="card padMd">
+              <div class="row" style="justify-content: space-between; gap: 12px">
+                <div class="row" style="gap: 12px">
+                  <div class="avatarBox">
+                    <span class="avatarEmoji">{{ u.selectedAvatar ?? '🤖' }}</span>
+                  </div>
+                  <div class="stackXs">
+                    <div class="strong">{{ u.username ?? u.uid }}</div>
+                    <div class="muted small">{{ u.online ? 'online' : 'offline' }}</div>
+                  </div>
+                </div>
+
+                <button
+                  class="ctaBtn"
+                  type="button"
+                  style="width: 124px; height: 44px; border-radius: 14px"
+                  :disabled="invitingUid === u.uid || !uid"
+                  @click="inviteUser(u.uid)"
+                >
+                  {{ invitingUid === u.uid ? 'Inviting...' : 'Invite' }}
+                </button>
+              </div>
+            </div>
           </div>
 
-          <div class="finalGrid">
-            <div class="finalBox" :class="{ winBox: playerWon }">
-              <div class="emoji big">🥷</div>
-              <div class="scoreNum">{{ playerScore }}</div>
-              <div class="muted tiny">You</div>
+          <div style="height: 14px" />
+
+          <button class="ctaBtn" type="button" :disabled="finding || !uid" @click="onQuickMatch">
+            {{ finding ? 'Matching...' : 'Quick Match' }}
+          </button>
+        </template>
+
+        <!-- WAITING -->
+        <template v-else-if="stage === 'waiting'">
+          <div class="card padLg center stackMd">
+            <div class="h2">Finding Opponent...</div>
+            <p class="muted">No other players yet. You can wait, invite a friend, or cancel.</p>
+
+            <div class="row" style="gap: 10px; margin-top: 6px; width: 100%">
+              <button class="outlineBtn" type="button" @click="cancelWaiting" style="flex: 1">
+                Cancel
+              </button>
+              <button class="outlineBtn" type="button" @click="backToLobby" style="flex: 1">
+                Back
+              </button>
+            </div>
+          </div>
+        </template>
+
+        <!-- ACTIVE -->
+        <template v-else-if="stage === 'active' && match">
+          <header class="activeHead">
+            <div class="row" style="gap: 10px">
+              <span class="muted small">⏱</span>
+              <span class="strong" :class="{ danger: (remainingMs ?? 0) <= 5000 }">
+                {{ Math.max(0, Math.ceil((remainingMs ?? 0) / 1000)) }}s
+              </span>
             </div>
 
-            <div class="finalBox" :class="{ winBox: !playerWon && !isDraw }">
-              <div class="emoji big">{{ selectedOpponent?.avatar }}</div>
-              <div class="scoreNum">{{ opponentScore }}</div>
-              <div class="muted tiny">{{ selectedOpponent?.name }}</div>
+            <div class="muted small">
+              Question {{ match.currentIndex + 1 }}/{{
+                match.questionIds?.length ?? DUEL_QUESTIONS.length
+              }}
+            </div>
+          </header>
+
+          <div class="row" style="gap: 12px; margin-top: 12px">
+            <div class="scoreCard pink">
+              <div class="row" style="gap: 10px">
+                <div class="tinyAvatar">🥷</div>
+                <div class="stackXs">
+                  <div class="muted small">You</div>
+                  <div class="strong">{{ yourScore }}</div>
+                </div>
+              </div>
+            </div>
+
+            <div class="scoreCard purple">
+              <div class="row" style="gap: 10px">
+                <div class="tinyAvatar">🎮</div>
+                <div class="stackXs">
+                  <div class="muted small">Opponent</div>
+                  <div class="strong">{{ oppScore }}</div>
+                </div>
+              </div>
             </div>
           </div>
 
-          <div class="stats">
-            <div class="statRow">
-              <span class="muted">Correct Answers:</span>
-              <span class="strong">{{ playerCorrect }}/{{ DUEL_QUESTIONS.length }}</span>
-            </div>
-            <div class="statRow">
-              <span class="muted">XP Earned:</span>
-              <span class="strong xpPlus">+{{ playerScore }} XP</span>
-            </div>
+          <div class="progressTrack" role="progressbar" :aria-valuenow="progressPct">
+            <div class="progressFill" :style="{ width: progressPct + '%' }"></div>
           </div>
 
-          <div class="stackSm" style="width: 100%">
-            <button class="ctaBtn" type="button" @click="resetDuel">Play Again</button>
-            <button class="outlineBtn" type="button" @click="router.push('/dashboard')">
-              Back to Dashboard
+          <div style="height: 12px" />
+
+          <div class="card padLg center stackSm">
+            <span class="pill">{{ currentQ.subject }}</span>
+            <h2 class="h2">{{ currentQ.question }}</h2>
+          </div>
+
+          <div class="stackSm" style="margin-top: 12px">
+            <button
+              v-for="(opt, idx) in currentQ.options"
+              :key="idx"
+              class="optionBtn"
+              type="button"
+              :disabled="selectedAnswer !== null"
+              :class="{ active: selectedAnswer === idx }"
+              @click="pickAnswer(idx)"
+            >
+              <span class="optLetter">{{ String.fromCharCode(65 + idx) }}</span>
+              <span class="optText">{{ opt }}</span>
             </button>
           </div>
-        </div>
-      </div>
 
-      <BottomNavbar currentPage="duel" />
+          <div class="row" style="gap: 10px; margin-top: 14px">
+            <button class="outlineBtn" type="button" @click="backToLobby" style="flex: 1">
+              Leave
+            </button>
+          </div>
+        </template>
+
+        <!-- FINISHED -->
+        <template v-else-if="stage === 'finished' && match">
+          <div class="card padLg center stackLg">
+            <div class="badgeBig" :class="resultBadgeClass">
+              <span class="bigEmoji">{{ resultEmoji }}</span>
+            </div>
+
+            <div class="center stackSm">
+              <h1 class="h1" :class="resultTextClass">{{ resultTitle }}</h1>
+              <p class="muted">{{ resultSubtitle }}</p>
+            </div>
+
+            <div class="stats">
+              <div class="statBlock" :class="{ win: youWon }">
+                <div class="statBig">{{ yourScore }}</div>
+                <div class="muted small">You</div>
+              </div>
+              <div class="statBlock" :class="{ win: oppWon }">
+                <div class="statBig">{{ oppScore }}</div>
+                <div class="muted small">Opponent</div>
+              </div>
+            </div>
+
+            <div class="card padMd" style="width: 100%">
+              <div class="row" style="justify-content: space-between">
+                <span class="muted">XP Earned:</span>
+                <span class="strong" style="color: rgba(228, 34, 221, 0.95)"
+                  >+{{ duelXpEarned }} XP</span
+                >
+              </div>
+            </div>
+
+            <div class="stackSm" style="width: 100%">
+              <button class="ctaBtn" type="button" @click="playAgain">Play Again</button>
+              <button class="outlineBtn" type="button" @click="router.push('/dashboard')">
+                Back to Dashboard
+              </button>
+            </div>
+          </div>
+        </template>
+
+        <!-- FALLBACK -->
+        <template v-else>
+          <div class="card padLg center stackSm">
+            <div class="h2">Loading…</div>
+            <p class="muted">If this persists, go back to lobby.</p>
+            <button class="outlineBtn" type="button" @click="backToLobby">Back</button>
+          </div>
+        </template>
+      </div>
     </section>
   </main>
 </template>
 
-<script setup>
-import { computed, onBeforeUnmount, ref, watch } from 'vue'
-import { useRouter } from 'vue-router'
-import BottomNavbar from '@/components/BottomNavbar.vue'
+<script setup lang="ts">
+import { computed, onBeforeUnmount, onMounted, ref, watch } from 'vue'
+import { useRoute, useRouter } from 'vue-router'
+
+import { useAuth } from '@/composables/useAuth'
+import { useMatch } from '@/composables/useMatch'
+import { usePresence } from '@/composables/usePresence'
+
+import { onlineUsersQuery } from '@/lib/presence'
 import {
-  Swords,
-  ArrowLeft,
-  Clock,
-  Trophy,
-  Star,
-  Zap,
-  Users,
-  Play,
-  Crown,
-  CheckCircle,
-  XCircle,
-} from 'lucide-vue-next'
+  findOrCreateOpenMatch,
+  joinOpenMatch,
+  submitAnswer,
+  tryAdvance,
+  awardDuelOnce,
+  abandonIfStillWaiting,
+} from '@/lib/duel'
+
+import { sendInvite, listenIncomingInvites, acceptInvite, declineInvite } from '@/lib/invites'
+import { onSnapshot } from 'firebase/firestore'
 
 const router = useRouter()
+const route = useRoute()
+const { user } = useAuth()
+const uid = computed(() => (user.value as any)?.uid ?? null)
+const hasNavbar = true
 
+// --- Sample question bank (igual que RN). Luego lo puedes reemplazar por Firestore.
 const DUEL_QUESTIONS = [
   {
     id: 1,
@@ -339,221 +313,357 @@ const DUEL_QUESTIONS = [
     correctAnswer: 0,
     subject: 'Databases',
   },
+] as const
+
+const howItWorks = [
+  'Answer questions faster than your opponent',
+  'Each correct answer gives you 100 points',
+  'Highest score wins the duel!',
 ]
 
-const MOCK_OPPONENTS = [
-  { id: 1, name: 'AlgoMaster', avatar: '🤖', level: 6, winRate: 78, status: 'online' },
-  { id: 2, name: 'CodeWizard', avatar: '🧙‍♂️', level: 4, winRate: 65, status: 'online' },
-  { id: 3, name: 'DataNinja', avatar: '🥷', level: 7, winRate: 82, status: 'online' },
-  { id: 4, name: 'ByteHunter', avatar: '🦸‍♀️', level: 5, winRate: 71, status: 'online' },
-]
-
-const duelState = ref('lobby') // "lobby" | "matchmaking" | "versus" | "playing" | "results"
-const selectedOpponent = ref(null)
-
-const currentQuestion = ref(0)
-const playerScore = ref(0)
-const opponentScore = ref(0)
-
-const playerAnswers = ref([])
-const opponentAnswers = ref([])
-
-const selectedAnswer = ref(null)
-const timeLeft = ref(15)
-const showResults = ref(false)
-
-/* derived */
-const currentQuestionData = computed(() => DUEL_QUESTIONS[currentQuestion.value])
-const progress = computed(() =>
-  Math.round(((currentQuestion.value + 1) / DUEL_QUESTIONS.length) * 100),
+// --- Presence (heartbeat)
+watch(
+  uid,
+  (v) => {
+    if (v) usePresence(v)
+  },
+  { immediate: true },
 )
 
-/* ----- Timer ----- */
-let t = null
-const clearTimer = () => {
-  if (t) {
-    clearTimeout(t)
-    t = null
-  }
-}
-const tick = () => {
-  clearTimer()
-  if (duelState.value !== 'playing') return
-  if (showResults.value) return
-  if (timeLeft.value <= 0) return
+// --- Online users list
+const onlineUsers = ref<any[]>([])
+let unsubOnline: null | (() => void) = null
 
-  t = setTimeout(() => {
-    timeLeft.value -= 1
-    if (timeLeft.value <= 0 && duelState.value === 'playing' && !showResults.value) handleTimeUp()
-    else tick()
-  }, 1000)
-}
-watch([duelState, showResults, timeLeft], () => {
-  if (duelState.value === 'playing') tick()
-  else clearTimer()
-})
-onBeforeUnmount(() => clearTimer())
+watch(
+  uid,
+  (myUid) => {
+    unsubOnline?.()
+    unsubOnline = null
+    if (!myUid) {
+      onlineUsers.value = []
+      return
+    }
 
-/* ----- Simulate opponent answer when player answers ----- */
-let oppT = null
-const clearOppTimer = () => {
-  if (oppT) {
-    clearTimeout(oppT)
-    oppT = null
-  }
-}
+    // onlineUsersQuery() debe regresar un Firestore Query (web modular)
+    const q = onlineUsersQuery()
+    unsubOnline = onSnapshot(
+      q,
+      (snap) => {
+        const rows = snap.docs
+          .map((d) => ({ uid: d.id, ...(d.data() as any) }))
+          .filter((u) => u.uid && u.uid !== myUid)
+        onlineUsers.value = rows
+      },
+      () => {
+        onlineUsers.value = []
+      },
+    )
+  },
+  { immediate: true },
+)
 
-watch(selectedAnswer, (val) => {
-  if (duelState.value !== 'playing') return
-  if (val === null) return
+onBeforeUnmount(() => unsubOnline?.())
 
-  clearOppTimer()
+// --- Match
+const matchId = ref<string | null>(null)
 
-  const opponentDelay = Math.random() * 3000 + 1000 // 1-4s
-  oppT = setTimeout(() => {
-    const opponentCorrect = Math.random() > 0.3 // 70% chance correct
-    opponentAnswers.value = [...opponentAnswers.value, opponentCorrect]
-    if (opponentCorrect) opponentScore.value += 100
-
-    setTimeout(() => {
-      showResults.value = true
-      setTimeout(() => nextQuestion(), 1200)
-    }, 350)
-  }, opponentDelay)
+// deep link / route param (?matchId=xxxx o /duel/:matchId)
+onMounted(() => {
+  const fromParam = String((route.params as any)?.matchId ?? '')
+  const fromQuery = String((route.query as any)?.matchId ?? '')
+  const seed = (fromParam || fromQuery || '').trim()
+  if (seed) matchId.value = seed
 })
 
-onBeforeUnmount(() => clearOppTimer())
+const { match, remainingMs } = useMatch(computed(() => matchId.value ?? undefined)) as any
 
-/* actions */
-const startMatchmaking = () => {
-  duelState.value = 'matchmaking'
-  setTimeout(() => {
-    const randomOpponent = MOCK_OPPONENTS[Math.floor(Math.random() * MOCK_OPPONENTS.length)]
-    selectedOpponent.value = randomOpponent
-    duelState.value = 'versus'
-  }, 1400)
+const stage = computed<'lobby' | 'waiting' | 'active' | 'finished'>(() => {
+  if (!matchId.value) return 'lobby'
+  const st = match.value?.status
+  if (!st || st === 'waiting') return 'waiting'
+  if (st === 'active') return 'active'
+  if (st === 'finished') return 'finished'
+  return 'waiting'
+})
+
+// --- Lobby actions
+const finding = ref(false)
+const invitingUid = ref<string | null>(null)
+
+function qIds() {
+  // ids simples para el match doc; tú luego puedes meter ids reales
+  return DUEL_QUESTIONS.map((_, i) => `q${i + 1}`)
 }
 
-const selectOpponentAndMatch = (opp) => {
-  selectedOpponent.value = opp
-  startMatchmaking()
+async function onQuickMatch() {
+  if (!uid.value || finding.value) return
+  try {
+    finding.value = true
+    const id = await findOrCreateOpenMatch(uid.value, qIds(), 15000)
+    matchId.value = String(id)
+  } finally {
+    finding.value = false
+  }
 }
 
-const startDuel = () => {
-  duelState.value = 'playing'
-  currentQuestion.value = 0
-  playerScore.value = 0
-  opponentScore.value = 0
-  playerAnswers.value = []
-  opponentAnswers.value = []
-  selectedAnswer.value = null
-  timeLeft.value = 15
-  showResults.value = false
-  tick()
+async function inviteUser(targetUid: string) {
+  if (!uid.value || invitingUid.value) return
+  invitingUid.value = targetUid
+  try {
+    const res = await sendInvite({
+      fromUid: uid.value,
+      toUid: String(targetUid),
+      questionIds: qIds(),
+      perQuestionMs: 15000,
+    })
+    // normaliza (por si tu sendInvite retorna string o {matchId})
+    const mId = typeof res === 'string' ? res : (res as any)?.matchId
+    if (mId) matchId.value = String(mId)
+  } finally {
+    invitingUid.value = null
+  }
 }
 
-const handleAnswerSelect = (idx) => {
+// --- Invites overlay
+const pendingInvites = ref<Array<{ id: string; fromUid: string; matchId: string }>>([])
+const seenInviteIds = new Set<string>()
+let unsubInvites: null | (() => void) = null
+
+watch(
+  uid,
+  (myUid) => {
+    unsubInvites?.()
+    unsubInvites = null
+    pendingInvites.value = []
+    seenInviteIds.clear()
+
+    if (!myUid) return
+    unsubInvites = listenIncomingInvites(myUid, (invites) => {
+      const fresh = invites.filter((i) => !seenInviteIds.has(i.id))
+      fresh.forEach((i) => seenInviteIds.add(i.id))
+      if (fresh.length) pendingInvites.value = [...fresh, ...pendingInvites.value]
+    })
+  },
+  { immediate: true },
+)
+
+onBeforeUnmount(() => unsubInvites?.())
+
+async function handleAcceptInvite(inv: { id: string; matchId: string }) {
+  if (!uid.value) return
+  try {
+    const acceptedMatchId = await acceptInvite({ toUid: uid.value, inviteId: inv.id })
+    matchId.value = String(acceptedMatchId)
+  } finally {
+    pendingInvites.value = pendingInvites.value.filter((x) => x.id !== inv.id)
+  }
+}
+
+async function handleDeclineInvite(inv: { id: string }) {
+  if (!uid.value) return
+  try {
+    await declineInvite({ toUid: uid.value, inviteId: inv.id })
+  } finally {
+    pendingInvites.value = pendingInvites.value.filter((x) => x.id !== inv.id)
+  }
+}
+
+// --- Join waiting match if you are guest and it's still open
+watch(
+  () =>
+    [
+      uid.value,
+      match.value?.status,
+      match.value?.hostUid,
+      match.value?.opponentUid,
+      matchId.value,
+    ] as const,
+  async ([myUid, st, hostUid, opponentUid, mId]) => {
+    if (!myUid || !mId || !match.value) return
+    const youAreHost = hostUid === myUid
+    if (st === 'waiting' && !youAreHost && !opponentUid) {
+      try {
+        await joinOpenMatch(String(mId), String(myUid))
+      } catch {
+        // ignore
+      }
+    }
+  },
+)
+
+// --- Active gameplay
+const selectedAnswer = ref<number | null>(null)
+
+watch(
+  () => match.value?.currentIndex,
+  () => {
+    selectedAnswer.value = null
+  },
+)
+
+const currentQ = computed(() => {
+  const idx = match.value?.currentIndex ?? 0
+  return DUEL_QUESTIONS[idx] ?? DUEL_QUESTIONS[0]
+})
+
+const progressPct = computed(() => {
+  const total = match.value?.questionIds?.length ?? DUEL_QUESTIONS.length
+  const idx = match.value?.currentIndex ?? 0
+  return Math.max(0, Math.min(100, ((idx + 1) / Math.max(1, total)) * 100))
+})
+
+const yourScore = computed(() => {
+  const myUid = uid.value
+  if (!myUid || !match.value) return 0
+  return Number(match.value.scores?.[myUid] ?? 0)
+})
+
+const oppUid = computed(() => {
+  if (!uid.value || !match.value) return null
+  return match.value.hostUid === uid.value ? (match.value.opponentUid ?? null) : match.value.hostUid
+})
+
+const oppScore = computed(() => {
+  if (!match.value || !oppUid.value) return 0
+  return Number(match.value.scores?.[oppUid.value] ?? 0)
+})
+
+async function pickAnswer(idx: number) {
+  if (!uid.value || !match.value || match.value.status !== 'active') return
   if (selectedAnswer.value !== null) return
 
   selectedAnswer.value = idx
-  const ok = idx === currentQuestionData.value.correctAnswer
-  playerAnswers.value = [...playerAnswers.value, ok]
-  if (ok) playerScore.value += 100
 
-  // si respondes, el timer se puede seguir (pero no avanza hasta resultados), ok.
+  await submitAnswer({
+    matchId: match.value.id,
+    uid: uid.value,
+    index: match.value.currentIndex,
+    choice: idx,
+    correctChoice: currentQ.value.correctAnswer,
+    points: 100,
+  })
+
+  // nudge
+  await tryAdvance(match.value.id)
 }
 
-const handleTimeUp = () => {
-  if (selectedAnswer.value !== null) return
-  selectedAnswer.value = -1
-  playerAnswers.value = [...playerAnswers.value, false]
+// auto-advance when timer runs out
+watch(
+  () => [match.value?.status, remainingMs.value] as const,
+  async ([st, ms]) => {
+    if (!match.value || st !== 'active') return
+    if ((ms ?? 0) <= 0) {
+      await tryAdvance(match.value.id)
+    }
+  },
+)
 
-  // si se acaba el tiempo, igual simulamos respuesta del oponente rápido
-  const opponentCorrect = Math.random() > 0.3
-  opponentAnswers.value = [...opponentAnswers.value, opponentCorrect]
-  if (opponentCorrect) opponentScore.value += 100
-
-  showResults.value = true
-  setTimeout(() => nextQuestion(), 1200)
-}
-
-const nextQuestion = () => {
-  if (currentQuestion.value < DUEL_QUESTIONS.length - 1) {
-    currentQuestion.value += 1
-    selectedAnswer.value = null
-    timeLeft.value = 15
-    showResults.value = false
-    tick()
-  } else {
-    duelState.value = 'results'
+// cancel waiting
+async function cancelWaiting() {
+  if (!uid.value || !matchId.value) {
+    matchId.value = null
+    return
+  }
+  try {
+    await abandonIfStillWaiting(String(matchId.value), String(uid.value))
+  } finally {
+    matchId.value = null
   }
 }
 
-const resetDuel = () => {
-  duelState.value = 'lobby'
-  selectedOpponent.value = null
-  currentQuestion.value = 0
-  playerScore.value = 0
-  opponentScore.value = 0
-  playerAnswers.value = []
-  opponentAnswers.value = []
-  selectedAnswer.value = null
-  timeLeft.value = 15
-  showResults.value = false
+function backToLobby() {
+  matchId.value = null
 }
 
-/* results computed */
-const playerWon = computed(() => playerScore.value > opponentScore.value)
-const isDraw = computed(() => playerScore.value === opponentScore.value)
-const playerCorrect = computed(() => playerAnswers.value.filter(Boolean).length)
+// --- Award on finish (once)
+const awardRan = ref(false)
 
-const resultTitle = computed(() =>
-  playerWon.value ? 'Victory!' : isDraw.value ? 'Draw!' : 'Defeat!',
+watch(
+  () => match.value?.status,
+  async (st) => {
+    if (st !== 'finished') {
+      awardRan.value = false
+      return
+    }
+    if (!uid.value || !match.value || awardRan.value) return
+    awardRan.value = true
+
+    const youWonLocal = match.value.winnerUid
+      ? match.value.winnerUid === uid.value
+      : yourScore.value > oppScore.value
+    const xp = youWonLocal ? 300 : 100
+
+    try {
+      await awardDuelOnce({
+        uid: uid.value,
+        matchId: match.value.id,
+        points: xp,
+        mirrorToProfile: true,
+      })
+    } catch (e) {
+      // si falla (offline), puedes permitir retry luego
+      awardRan.value = false
+      console.warn('awardDuelOnce failed', e)
+    }
+  },
 )
+
+// --- Results computed
+const youWon = computed(() => {
+  if (!uid.value || !match.value) return false
+  if (match.value.winnerUid == null) return yourScore.value > oppScore.value
+  return match.value.winnerUid === uid.value
+})
+const oppWon = computed(() => {
+  if (!uid.value || !match.value) return false
+  if (match.value.winnerUid == null) return oppScore.value > yourScore.value
+  return match.value.winnerUid === oppUid.value
+})
+const isDraw = computed(() => yourScore.value === oppScore.value)
+
+const resultTitle = computed(() => (youWon.value ? 'Victory!' : isDraw.value ? 'Draw!' : 'Defeat!'))
 const resultSubtitle = computed(() =>
-  playerWon.value
+  youWon.value
     ? 'Great job! You outplayed your opponent.'
     : isDraw.value
       ? 'Evenly matched! Try again for a decisive win.'
       : 'Better luck next time! Keep practicing.',
 )
-
-const resultTitleClass = computed(() =>
-  playerWon.value ? 'okText' : isDraw.value ? 'warnText' : 'badText',
+const resultEmoji = computed(() => (youWon.value ? '👑' : isDraw.value ? '⭐' : '🏆'))
+const resultTextClass = computed(() =>
+  youWon.value ? 'okText' : isDraw.value ? 'midText' : 'badText',
 )
-
 const resultBadgeClass = computed(() =>
-  playerWon.value ? 'success' : isDraw.value ? 'warn' : 'danger',
+  youWon.value ? 'success' : isDraw.value ? 'warn' : 'danger',
 )
+
+const duelXpEarned = computed(() => {
+  // aquí lo dejo simple: si quieres, usa score o xp fijo
+  return youWon.value ? 300 : 100
+})
+
+function playAgain() {
+  matchId.value = null
+}
 </script>
 
 <style scoped>
 .duel {
   min-height: 100vh;
-  width: 100vw;
-  color: rgba(255, 255, 255, 0.92);
-  padding-bottom: 88px;
-
+  width: 100%;
+  color: rgba(255, 255, 255, 0.93);
   background:
     radial-gradient(900px 520px at 20% 10%, rgba(216, 70, 239, 0.18), transparent 55%),
     radial-gradient(900px 520px at 78% 18%, rgba(59, 130, 246, 0.18), transparent 55%),
-    radial-gradient(900px 520px at 50% 96%, rgba(16, 185, 129, 0.08), transparent 60%),
-    linear-gradient(180deg, #0b0a14 0%, #070a13 55%, #06151a 100%);
-  overflow-x: hidden;
+    linear-gradient(180deg, #0b0b10 0%, #070a13 70%, #06151a 100%);
 }
+
 .wrap {
-  width: min(520px, 92vw);
+  width: min(560px, 92vw);
   margin: 0 auto;
 }
 .pad {
-  padding: 18px 0 0;
-}
-.centerPad {
-  min-height: 100vh;
-  display: flex;
-  align-items: center;
-  justify-content: center;
-  padding: 18px 0 0;
+  padding: 18px 0 28px;
 }
 
 .stackLg {
@@ -568,9 +678,41 @@ const resultBadgeClass = computed(() =>
   display: grid;
   gap: 10px;
 }
+.stackXs {
+  display: grid;
+  gap: 4px;
+}
+
 .center {
   text-align: center;
   justify-items: center;
+}
+.row {
+  display: flex;
+  align-items: center;
+}
+
+.h1 {
+  margin: 0;
+  font-size: 22px;
+  font-weight: 950;
+}
+.h2 {
+  margin: 0;
+  font-size: 16px;
+  font-weight: 900;
+  line-height: 1.35;
+}
+.muted {
+  margin: 0;
+  color: rgba(210, 225, 255, 0.66);
+  line-height: 1.55;
+}
+.small {
+  font-size: 12px;
+}
+.strong {
+  font-weight: 950;
 }
 
 .card {
@@ -582,97 +724,45 @@ const resultBadgeClass = computed(() =>
 .padLg {
   padding: 18px;
 }
-.padXL {
-  padding: 24px;
-}
-.padSm {
+.padMd {
   padding: 12px;
-}
-
-.h1 {
-  margin: 0;
-  font-size: 22px;
-  font-weight: 950;
-  letter-spacing: -0.01em;
-}
-.h2 {
-  margin: 0;
-  font-size: 16px;
-  font-weight: 900;
-  letter-spacing: -0.01em;
-}
-.h2Big {
-  margin: 0;
-  font-size: 18px;
-  font-weight: 950;
-  letter-spacing: -0.01em;
-}
-.muted {
-  margin: 0;
-  color: rgba(210, 225, 255, 0.66);
-  line-height: 1.55;
-}
-.small {
-  font-size: 12px;
-}
-.tiny {
-  font-size: 11px;
-}
-.strong {
-  font-weight: 950;
-}
-.badText {
-  color: #ef4444;
-}
-.okText {
-  color: #10b981;
-}
-.warnText {
-  color: #f59e0b;
 }
 
 .topBar {
   display: flex;
-  align-items: center;
   justify-content: space-between;
+  align-items: center;
   gap: 10px;
 }
-.ghostBack {
-  border: 0;
-  background: transparent;
-  color: rgba(210, 225, 255, 0.8);
-  font-weight: 950;
-  display: inline-flex;
-  align-items: center;
-  gap: 8px;
-  padding: 8px 10px;
-  border-radius: 12px;
+
+.ghostIcon {
+  width: 40px;
+  height: 40px;
+  border-radius: 14px;
+  border: 1px solid rgba(160, 190, 255, 0.16);
+  background: rgba(255, 255, 255, 0.03);
+  color: rgba(255, 255, 255, 0.86);
+  display: grid;
+  place-items: center;
   cursor: pointer;
 }
-.ghostBack:hover {
-  background: rgba(255, 255, 255, 0.04);
-}
 
-.onlineBadge {
+.onlinePill {
   display: inline-flex;
   align-items: center;
   gap: 8px;
   padding: 8px 10px;
   border-radius: 999px;
-  background: rgba(16, 185, 129, 0.1);
-  border: 1px solid rgba(16, 185, 129, 0.18);
-  color: rgba(16, 185, 129, 0.95);
-  font-size: 12px;
-  font-weight: 950;
+  border: 1px solid rgba(160, 190, 255, 0.16);
+  background: rgba(255, 255, 255, 0.03);
+  font-weight: 900;
+  color: rgba(55, 214, 122, 0.95);
 }
 .dot {
   width: 8px;
   height: 8px;
   border-radius: 999px;
-  background: rgba(16, 185, 129, 0.95);
-}
-.dot.good {
-  background: rgba(16, 185, 129, 0.95);
+  background: rgba(55, 214, 122, 0.95);
 }
 
 .badgeBig {
@@ -682,145 +772,34 @@ const resultBadgeClass = computed(() =>
   display: grid;
   place-items: center;
   background: linear-gradient(135deg, #d946ef 0%, #3b82f6 100%);
-  box-shadow:
-    0 14px 34px rgba(59, 130, 246, 0.18),
-    0 14px 34px rgba(217, 70, 239, 0.12);
 }
 .badgeBig.success {
-  background: linear-gradient(135deg, #10b981 0%, #22c55e 100%);
+  background: linear-gradient(135deg, #10b981 0%, #06b6d4 100%);
 }
 .badgeBig.warn {
-  background: linear-gradient(135deg, #f59e0b 0%, #fb923c 100%);
+  background: linear-gradient(135deg, #f59e0b 0%, #eab308 100%);
 }
 .badgeBig.danger {
   background: linear-gradient(135deg, #ef4444 0%, #fb7185 100%);
 }
-
-.bigIcon {
-  width: 38px;
-  height: 38px;
-  color: rgba(255, 255, 255, 0.93);
-}
-.mini {
-  width: 18px;
-  height: 18px;
-}
-.midIcon {
-  width: 32px;
-  height: 32px;
-  color: rgba(255, 255, 255, 0.93);
+.bigEmoji {
+  font-size: 34px;
+  line-height: 1;
 }
 
-.pop {
-  animation: pop 650ms cubic-bezier(0.2, 0.9, 0.2, 1) both;
-}
-@keyframes pop {
-  0% {
-    transform: scale(0.86);
-    opacity: 0;
-  }
-  60% {
-    transform: scale(1.05);
-    opacity: 1;
-  }
-  100% {
-    transform: scale(1);
-  }
-}
-
-.how {
-  display: grid;
-  gap: 10px;
-}
 .howRow {
   display: flex;
   align-items: center;
   gap: 10px;
 }
-.step {
-  width: 26px;
-  height: 26px;
+.howNum {
+  width: 24px;
+  height: 24px;
   border-radius: 999px;
   display: grid;
   place-items: center;
-  background: rgba(217, 70, 239, 0.1);
-  border: 1px solid rgba(217, 70, 239, 0.18);
-  color: rgba(217, 70, 239, 0.95);
-  font-weight: 950;
-  font-size: 12px;
-}
-
-.opp {
-  width: 100%;
-  text-align: left;
-  cursor: pointer;
-  padding: 14px;
-  display: flex;
-  align-items: center;
-  gap: 12px;
-  transition:
-    transform 160ms ease,
-    border-color 160ms ease,
-    background 160ms ease;
-}
-.opp:hover {
-  transform: translateY(-1px);
-  border-color: rgba(160, 190, 255, 0.32);
-  background: rgba(255, 255, 255, 0.045);
-}
-.opp:active {
-  transform: scale(0.99);
-}
-
-.oppAvatar {
-  width: 48px;
-  height: 48px;
-  border-radius: 16px;
-  background: linear-gradient(135deg, rgba(59, 130, 246, 0.35), rgba(217, 70, 239, 0.2));
-  border: 1px solid rgba(160, 190, 255, 0.16);
-  display: grid;
-  place-items: center;
-  flex: 0 0 auto;
-}
-.emoji {
-  font-size: 22px;
-}
-.emoji.big {
-  font-size: 26px;
-}
-
-.oppMeta {
-  flex: 1;
-  min-width: 0;
-}
-.oppTop {
-  display: flex;
-  align-items: center;
-  gap: 10px;
-}
-.oppName {
-  font-weight: 950;
-  white-space: nowrap;
-  overflow: hidden;
-  text-overflow: ellipsis;
-}
-.lvlBadge {
-  font-size: 10px;
-  font-weight: 950;
-  padding: 3px 8px;
-  border-radius: 999px;
-  border: 1px solid rgba(160, 190, 255, 0.16);
-  background: rgba(255, 255, 255, 0.03);
-  flex: 0 0 auto;
-}
-.oppStatus {
-  display: flex;
-  align-items: center;
-  gap: 8px;
-  flex: 0 0 auto;
-}
-.goodText {
-  color: rgba(16, 185, 129, 0.95);
+  background: rgba(228, 34, 221, 0.15);
+  color: rgba(228, 34, 221, 0.95);
   font-weight: 950;
   font-size: 12px;
 }
@@ -830,202 +809,105 @@ const resultBadgeClass = computed(() =>
   height: 52px;
   border: 0;
   border-radius: 16px;
-  font-size: 16px;
+  font-size: 15px;
   font-weight: 950;
   color: rgba(255, 255, 255, 0.95);
   background: linear-gradient(90deg, #d946ef 0%, #3b82f6 100%);
-  box-shadow:
-    0 14px 34px rgba(59, 130, 246, 0.18),
-    0 14px 34px rgba(217, 70, 239, 0.12);
   display: inline-flex;
   align-items: center;
   justify-content: center;
   gap: 10px;
   cursor: pointer;
-  transition:
-    transform 160ms ease,
-    filter 160ms ease;
+}
+.ctaBtn:disabled {
+  opacity: 0.55;
+  cursor: not-allowed;
 }
 .ctaBtn:hover {
-  transform: translateY(-1px);
   filter: brightness(1.03);
+  transform: translateY(-1px);
 }
 .ctaBtn:active {
-  transform: scale(0.99);
-}
-.ctaBtn.danger {
-  background: linear-gradient(90deg, #ef4444 0%, #fb923c 100%);
+  transform: translateY(0px) scale(0.99);
 }
 
-.mmIcon {
-  width: 70px;
-  height: 70px;
-  border-radius: 20px;
-  background: linear-gradient(135deg, #d946ef 0%, #3b82f6 100%);
-  display: grid;
-  place-items: center;
-  margin: 0 auto;
-  box-shadow:
-    0 14px 34px rgba(59, 130, 246, 0.18),
-    0 14px 34px rgba(217, 70, 239, 0.12);
+.outlineBtn {
+  width: 100%;
+  height: 52px;
+  border-radius: 16px;
+  border: 1px solid rgba(160, 190, 255, 0.2);
+  background: rgba(255, 255, 255, 0.03);
+  color: rgba(255, 255, 255, 0.9);
+  font-weight: 950;
+  cursor: pointer;
 }
-.pulse {
-  animation: pulse 1.2s ease-in-out infinite;
+.outlineBtn:hover {
+  background: rgba(255, 255, 255, 0.045);
 }
-@keyframes pulse {
-  0%,
-  100% {
-    transform: scale(1);
-  }
-  50% {
-    transform: scale(1.06);
-  }
+.outlineBtn:disabled {
+  opacity: 0.55;
+  cursor: not-allowed;
 }
 
-.dots {
-  display: flex;
-  gap: 6px;
-  justify-content: center;
-}
-.bDot {
-  width: 8px;
-  height: 8px;
-  border-radius: 999px;
-  background: rgba(217, 70, 239, 0.95);
-  animation: bounce 900ms ease-in-out infinite;
-}
-@keyframes bounce {
-  0%,
-  100% {
-    transform: translateY(0);
-    opacity: 0.6;
-  }
-  50% {
-    transform: translateY(-6px);
-    opacity: 1;
-  }
-}
-
-/* VS screen */
-.vsRow {
-  display: flex;
-  align-items: center;
-  justify-content: space-between;
-  gap: 12px;
-}
-.pCol {
-  text-align: center;
-  display: grid;
-  gap: 8px;
-  justify-items: center;
-}
-.pAvatar {
-  width: 64px;
-  height: 64px;
-  border-radius: 18px;
+.avatarBox {
+  width: 40px;
+  height: 40px;
+  border-radius: 14px;
+  background: rgba(142, 136, 255, 0.25);
   display: grid;
   place-items: center;
   border: 1px solid rgba(160, 190, 255, 0.16);
 }
-.pMe {
-  background: linear-gradient(135deg, #d946ef 0%, #3b82f6 100%);
-}
-.pOpp {
-  background: linear-gradient(135deg, rgba(59, 130, 246, 0.35), rgba(217, 70, 239, 0.2));
-}
-.pName {
-  font-weight: 950;
-}
-.vsCol {
-  text-align: center;
-  display: grid;
-  justify-items: center;
-  gap: 6px;
-}
-.vsIcon {
-  width: 46px;
-  height: 46px;
-  border-radius: 16px;
-  background: rgba(239, 68, 68, 0.1);
-  border: 1px solid rgba(239, 68, 68, 0.18);
-  display: grid;
-  place-items: center;
-}
-.vsText {
-  color: rgba(239, 68, 68, 0.95);
-  font-weight: 950;
+.avatarEmoji {
+  font-size: 22px;
+  line-height: 1;
 }
 
-/* Playing */
-.playHead {
+.inviteOverlay {
+  position: fixed;
+  left: 0;
+  right: 0;
+  bottom: 14px;
+  z-index: 9999;
+  pointer-events: none;
+}
+.inviteOverlay .card {
+  pointer-events: auto;
+}
+
+.activeHead {
   display: flex;
-  align-items: center;
   justify-content: space-between;
-  gap: 10px;
-}
-.timer {
-  display: flex;
   align-items: center;
-  gap: 8px;
+  gap: 12px;
 }
-.dim {
-  color: rgba(210, 225, 255, 0.55);
-}
-.time {
-  font-weight: 950;
-}
-.dangerText {
+.danger {
   color: #ef4444;
-  animation: pulseRed 900ms ease-in-out infinite;
-}
-@keyframes pulseRed {
-  0%,
-  100% {
-    transform: scale(1);
-  }
-  50% {
-    transform: scale(1.05);
-  }
 }
 
-.scoreGrid {
-  display: grid;
-  grid-template-columns: repeat(2, minmax(0, 1fr));
-  gap: 10px;
-}
-.score {
+.scoreCard {
+  flex: 1;
+  border-radius: 16px;
   padding: 12px;
+  border: 1px solid rgba(160, 190, 255, 0.16);
+  background: rgba(255, 255, 255, 0.03);
 }
-.scoreRow {
-  display: flex;
-  align-items: center;
-  gap: 10px;
+.scoreCard.pink {
+  background: rgba(228, 34, 221, 0.08);
+  border-color: rgba(228, 34, 221, 0.25);
 }
-.chip {
+.scoreCard.purple {
+  background: rgba(142, 136, 255, 0.08);
+  border-color: rgba(142, 136, 255, 0.25);
+}
+.tinyAvatar {
   width: 34px;
   height: 34px;
   border-radius: 12px;
   display: grid;
   place-items: center;
+  background: rgba(255, 255, 255, 0.06);
   border: 1px solid rgba(160, 190, 255, 0.14);
-}
-.chipMe {
-  background: rgba(217, 70, 239, 0.1);
-}
-.chipOpp {
-  background: rgba(59, 130, 246, 0.1);
-}
-.scoreNum {
-  font-size: 18px;
-  font-weight: 950;
-}
-.meScore {
-  background: rgba(217, 70, 239, 0.05);
-  border-color: rgba(217, 70, 239, 0.18);
-}
-.oppScore {
-  background: rgba(59, 130, 246, 0.05);
-  border-color: rgba(59, 130, 246, 0.18);
 }
 
 .progressTrack {
@@ -1035,6 +917,7 @@ const resultBadgeClass = computed(() =>
   background: rgba(255, 255, 255, 0.06);
   border: 1px solid rgba(160, 190, 255, 0.14);
   overflow: hidden;
+  margin-top: 12px;
 }
 .progressFill {
   height: 100%;
@@ -1043,22 +926,21 @@ const resultBadgeClass = computed(() =>
   transition: width 260ms ease;
 }
 
-.outlineBadge {
+.pill {
   display: inline-flex;
   padding: 6px 10px;
   border-radius: 999px;
   border: 1px solid rgba(160, 190, 255, 0.18);
   background: rgba(255, 255, 255, 0.03);
-  font-weight: 950;
+  font-weight: 900;
   font-size: 12px;
-  color: rgba(255, 255, 255, 0.86);
+  color: rgba(255, 255, 255, 0.9);
 }
 
-/* options */
 .optionBtn {
   width: 100%;
   border-radius: 16px;
-  padding: 14px 14px;
+  padding: 14px;
   border: 1px solid rgba(160, 190, 255, 0.16);
   background: rgba(255, 255, 255, 0.03);
   color: rgba(255, 255, 255, 0.9);
@@ -1066,29 +948,21 @@ const resultBadgeClass = computed(() =>
   align-items: center;
   gap: 12px;
   cursor: pointer;
-  transition:
-    transform 160ms ease,
-    border-color 160ms ease,
-    background 160ms ease,
-    opacity 160ms ease;
   text-align: left;
 }
 .optionBtn:hover {
   transform: translateY(-1px);
-  border-color: rgba(217, 70, 239, 0.28);
   background: rgba(255, 255, 255, 0.045);
-}
-.optionBtn.selected {
-  border-color: rgba(217, 70, 239, 0.55);
-  background: rgba(217, 70, 239, 0.08);
-}
-.optionBtn:active {
-  transform: scale(0.99);
+  border-color: rgba(217, 70, 239, 0.28);
 }
 .optionBtn:disabled {
   opacity: 0.55;
   cursor: not-allowed;
   transform: none;
+}
+.optionBtn.active {
+  border-color: rgba(228, 34, 221, 0.95);
+  background: rgba(228, 34, 221, 0.12);
 }
 
 .optLetter {
@@ -1106,77 +980,35 @@ const resultBadgeClass = computed(() =>
   line-height: 1.35;
 }
 
-/* overlay */
-.overlay {
-  background: rgba(255, 255, 255, 0.03);
-  border: 1px dashed rgba(160, 190, 255, 0.22);
-}
-.ovRow {
-  display: flex;
-  justify-content: space-between;
-  gap: 10px;
-}
-.ovSide {
-  display: flex;
-  align-items: center;
-  gap: 8px;
-}
-
-/* final */
-.finalGrid {
-  width: 100%;
+.stats {
   display: grid;
   grid-template-columns: repeat(2, minmax(0, 1fr));
   gap: 12px;
-}
-.finalBox {
-  border-radius: 18px;
-  padding: 14px;
-  border: 1px solid rgba(160, 190, 255, 0.14);
-  background: rgba(255, 255, 255, 0.03);
-}
-.winBox {
-  border-color: rgba(16, 185, 129, 0.22);
-  background: rgba(16, 185, 129, 0.06);
-}
-.stats {
   width: 100%;
-  border-radius: 18px;
+}
+.statBlock {
+  border-radius: 16px;
   padding: 12px;
   border: 1px solid rgba(160, 190, 255, 0.14);
   background: rgba(255, 255, 255, 0.03);
-  text-align: left;
+  text-align: center;
 }
-.statRow {
-  display: flex;
-  justify-content: space-between;
-  gap: 10px;
-  padding: 6px 0;
+.statBlock.win {
+  border-color: rgba(16, 185, 129, 0.25);
+  background: rgba(16, 185, 129, 0.08);
 }
-.xpPlus {
-  color: rgba(217, 70, 239, 0.95);
+.statBig {
+  font-size: 22px;
+  font-weight: 950;
 }
 
-.outlineBtn {
-  width: 100%;
-  height: 52px;
-  border-radius: 16px;
-  border: 1px solid rgba(160, 190, 255, 0.2);
-  background: rgba(255, 255, 255, 0.03);
-  color: rgba(255, 255, 255, 0.9);
-  font-weight: 950;
-  cursor: pointer;
-  transition:
-    transform 160ms ease,
-    border-color 160ms ease,
-    background 160ms ease;
+.okText {
+  color: #10b981;
 }
-.outlineBtn:hover {
-  transform: translateY(-1px);
-  border-color: rgba(160, 190, 255, 0.3);
-  background: rgba(255, 255, 255, 0.045);
+.midText {
+  color: #f59e0b;
 }
-.outlineBtn:active {
-  transform: scale(0.99);
+.badText {
+  color: #ef4444;
 }
 </style>
