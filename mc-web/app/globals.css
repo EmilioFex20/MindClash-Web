@@ -194,20 +194,6 @@ body {
   min-height: 100vh;
 }
 
-/* Custom scrollbar */
-::-webkit-scrollbar {
-  width: 6px;
-}
-
-::-webkit-scrollbar-track {
-  background: var(--color-muted);
-}
-
-::-webkit-scrollbar-thumb {
-  /* Hot pink scrollbar for arcade aesthetic */
-  background: var(--color-primary);
-  border-radius: 3px;
-}
 
 @layer base {
   * {

@@ -7,8 +7,6 @@ import { Trophy, Zap, Users, Target } from "lucide-react";
 import Link from "next/link";
 
 export function WelcomeScreen() {
-  const [isAnimating, setIsAnimating] = useState(false);
-
   return (
     <div className="min-h-screen flex flex-col items-center justify-center p-4 bg-gradient-to-br from-primary/10 via-secondary/10 to-accent/10">
       <div className="w-full max-w-md space-y-8">
@@ -22,7 +20,7 @@ export function WelcomeScreen() {
               MindClash
             </h1>
             <p className="text-lg text-muted-foreground text-pretty">
-              Master Computer Science through fun, gamified learning
+              Master Computer Science while having fun
             </p>
           </div>
         </div>
@@ -49,7 +47,7 @@ export function WelcomeScreen() {
 
           <Card className="p-4 text-center  border-2 hover:border-accent/50 transition-colors">
             <div className="w-12 h-12 mx-auto bg-accent/10 rounded-xl flex items-center justify-center">
-              <Target className="w-6 h-6 text-accent-foreground" />
+              <Target className="w-6 h-6 text-accent" />
             </div>
             <h3 className="font-semibold">Smart Quizzes</h3>
             <p className="text-sm text-muted-foreground">Adaptive learning</p>
@@ -66,20 +64,16 @@ export function WelcomeScreen() {
 
         {/* CTA Button */}
         <div className="space-y-4">
-          <Button
-            className={`w-full h-14 text-lg font-semibold rounded-2xl bg-gradient-to-r from-primary to-secondary hover:from-primary/90 hover:to-secondary/90 transition-all duration-300 ${
-              isAnimating ? "animate-pulse-glow" : ""
-            }`}
-          >
-            <Link href={"/onboarding"}>Sign Up</Link>
+          <Button className="w-full h-13 text-lg font-semibold rounded-2xl bg-gradient-to-r from-primary to-secondary hover:from-primary/90 hover:to-secondary/90 transition-all duration-300">
+            <Link href={"/sign-up"} className="w-full">
+              Sign Up
+            </Link>
           </Button>
-
-          <p className="text-center text-md text-muted-foreground">
-            Already have an account?{" "}
-            <Link href={"/login"} className="underline font-bold">
+          <Button className="w-full h-13 text-lg font-semibold rounded-2xl bg-gradient-to-r from-primary to-secondary hover:from-primary/90 hover:to-secondary/90 transition-all duration-300">
+            <Link href={"/log-in"} className="w-full">
               Log In
             </Link>
-          </p>
+          </Button>
         </div>
 
         {/* Subject Pills */}

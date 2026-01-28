@@ -12,6 +12,7 @@ import {
   Target,
   Sparkles,
 } from "lucide-react";
+import { useRouter } from "next/navigation";
 
 const ONBOARDING_STEPS = [
   { id: "welcome", title: "Welcome to CodeQuest!", progress: 25 },
@@ -53,20 +54,20 @@ const LEARNING_GOALS = [
 
 export function OnboardingFlow() {
   const [currentStep, setCurrentStep] = useState(0);
+  //Data to create User profile
   const [userData, setUserData] = useState({
     username: "",
     selectedAvatar: "",
     learningGoal: "",
   });
-
+  const router = useRouter();
   const currentStepData = ONBOARDING_STEPS[currentStep];
 
   const handleNext = () => {
     if (currentStep < ONBOARDING_STEPS.length - 1) {
       setCurrentStep(currentStep + 1);
     } else {
-      // Navigate to dashboard
-      window.location.href = "/dashboard";
+      router.push("/dashboard");
     }
   };
 
@@ -85,6 +86,8 @@ export function OnboardingFlow() {
       case 2:
         return userData.learningGoal;
       case 3:
+        return userData.learningGoal;
+      case 4:
         return true;
       default:
         return false;
