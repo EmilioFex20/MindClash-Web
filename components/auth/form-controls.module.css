@@ -1,0 +1,105 @@
+.field {
+  display: grid;
+  gap: 6px;
+}
+
+.field label {
+  color: var(--text);
+  font-size: 0.82rem;
+  font-weight: 700;
+}
+
+.input,
+.passwordWrap {
+  width: 100%;
+}
+
+.input {
+  height: 26px;
+  padding: 0 6px;
+  border: none;
+  outline: none;
+  color: var(--text);
+  background: var(--field-bg);
+  box-shadow:
+    inset -1px -1px var(--highlight),
+    inset 1px 1px var(--shadow),
+    inset -2px -2px var(--face-light),
+    inset 2px 2px var(--shadow-dark);
+  font-size: 0.9rem;
+}
+
+.input::placeholder {
+  color: #6b6b6b;
+  opacity: 1;
+}
+
+.input:focus {
+  outline: 1px dotted #000000;
+  outline-offset: -3px;
+}
+
+.input.inputError {
+  box-shadow:
+    inset -1px -1px var(--highlight),
+    inset 1px 1px var(--red),
+    inset -2px -2px var(--face-light),
+    inset 2px 2px var(--maroon);
+}
+
+.passwordWrap {
+  position: relative;
+}
+
+.passwordInput {
+  padding-right: 34px;
+}
+
+.visibilityButton {
+  position: absolute;
+  top: 50%;
+  right: 2px;
+  width: 24px;
+  height: 22px;
+  padding: 0;
+  display: grid;
+  place-items: center;
+  transform: translateY(-50%);
+  color: var(--text);
+  background: var(--face);
+  box-shadow:
+    inset -1px -1px var(--shadow-dark),
+    inset 1px 1px var(--highlight),
+    inset -2px -2px var(--shadow),
+    inset 2px 2px var(--face-light);
+  cursor: pointer;
+}
+
+.visibilityButton:active {
+  box-shadow:
+    inset -1px -1px var(--highlight),
+    inset 1px 1px var(--shadow-dark),
+    inset -2px -2px var(--face-light),
+    inset 2px 2px var(--shadow);
+}
+
+.visibilityButton svg {
+  width: 14px;
+  height: 14px;
+}
+
+.helper,
+.fieldError {
+  margin: 0;
+  font-size: 0.73rem;
+  line-height: 1.4;
+}
+
+.helper {
+  color: #454545;
+}
+
+.fieldError {
+  color: var(--red);
+  font-weight: 700;
+}

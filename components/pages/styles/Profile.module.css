@@ -1,0 +1,529 @@
+.pf {
+  min-height: 100vh;
+  color: var(--text);
+  background: var(--face);
+  padding-bottom: 88px;
+}
+
+.pad {
+  padding: 14px 0 28px;
+}
+
+.wrap {
+  width: min(560px, 92vw);
+  margin: 0 auto;
+}
+
+.head {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+}
+
+.ghostBack {
+  display: inline-flex;
+  align-items: center;
+  gap: 6px;
+  min-height: 30px;
+  padding: 0 10px;
+  font-size: 12px;
+  font-weight: 700;
+}
+
+.mini {
+  width: 14px;
+  height: 14px;
+}
+
+.micro {
+  width: 12px;
+  height: 12px;
+}
+
+.h1 {
+  margin: 0;
+  font-size: 17px;
+  font-weight: 700;
+}
+
+.iconBtn {
+  width: 32px;
+  height: 32px;
+  padding: 0;
+  display: grid;
+  place-items: center;
+}
+
+.card {
+  background: #ffffff;
+  box-shadow:
+    inset -1px -1px var(--highlight),
+    inset 1px 1px var(--shadow),
+    inset -2px -2px var(--face-light),
+    inset 2px 2px var(--shadow-dark);
+}
+
+.padLg {
+  padding: 16px;
+}
+
+.padMd {
+  padding: 10px;
+}
+
+.hero {
+  margin-top: 12px;
+}
+
+.rowTop {
+  display: flex;
+  align-items: flex-start;
+  gap: 12px;
+}
+
+.avatarBlob {
+  width: 56px;
+  height: 56px;
+  display: grid;
+  place-items: center;
+  flex: 0 0 auto;
+  background: var(--navy);
+  box-shadow:
+    inset -2px -2px var(--shadow-dark),
+    inset 1px 1px #dfe8ff,
+    inset -3px -3px var(--shadow),
+    inset 3px 3px var(--navy-light);
+}
+
+.avatarEmoji {
+  font-size: 26px;
+}
+
+.grow {
+  flex: 1;
+  min-width: 0;
+}
+
+.input {
+  width: 100%;
+  height: 28px;
+  padding: 0 8px;
+  border: none;
+  outline: none;
+  background: #ffffff;
+  box-shadow:
+    inset -1px -1px var(--highlight),
+    inset 1px 1px var(--shadow),
+    inset -2px -2px var(--face-light),
+    inset 2px 2px var(--shadow-dark);
+  font-size: 0.88rem;
+}
+
+.input:focus {
+  outline: 1px dotted #000000;
+  outline-offset: -3px;
+}
+
+.inputTitle {
+  font-weight: 700;
+}
+
+.inputBio {
+  margin-top: 8px;
+}
+
+.h2 {
+  margin: 0;
+  font-size: 16px;
+  font-weight: 700;
+}
+
+.metaRow {
+  margin-top: 6px;
+  display: flex;
+  align-items: center;
+  gap: 6px;
+  flex-wrap: wrap;
+}
+
+.pill {
+  display: inline-block;
+  padding: 2px 8px;
+  background: var(--face);
+  box-shadow:
+    inset -1px -1px var(--shadow-dark),
+    inset 1px 1px var(--highlight);
+  font-size: 11px;
+  font-weight: 700;
+}
+
+.dot {
+  opacity: 0.6;
+}
+
+.muted {
+  margin: 0;
+}
+
+.small {
+  font-size: 11px;
+}
+
+.tiny {
+  font-size: 10px;
+}
+
+.metaIcon {
+  display: inline-flex;
+  align-items: center;
+  gap: 3px;
+}
+
+.bio {
+  margin-top: 8px;
+}
+
+.xpWrap {
+  margin-top: 14px;
+}
+
+.rowBetween {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+}
+
+.primaryText {
+  color: var(--maroon);
+}
+
+.progressTrack {
+  margin-top: 6px;
+  height: 14px;
+  padding: 2px;
+  background: var(--face);
+  box-shadow:
+    inset -1px -1px var(--highlight),
+    inset 1px 1px var(--shadow-dark);
+}
+
+.progressTrack.sm {
+  height: 10px;
+}
+
+.progressFill {
+  display: block;
+  height: 100%;
+  background-color: var(--navy);
+  background-image: linear-gradient(90deg, var(--navy) 8px, transparent 0 2px);
+  background-repeat: repeat;
+  background-size: 10px 100%;
+}
+
+/* stat tiles */
+.statsGrid {
+  margin-top: 10px;
+  display: grid;
+  grid-template-columns: repeat(4, minmax(0, 1fr));
+  gap: 8px;
+}
+
+.stat {
+  padding: 10px 4px;
+  display: grid;
+  justify-items: center;
+  gap: 4px;
+  text-align: center;
+}
+
+.statIcon {
+  width: 30px;
+  height: 30px;
+  display: grid;
+  place-items: center;
+  color: #ffffff;
+}
+
+.bgStreak {
+  background: var(--maroon);
+}
+
+.bgSuccess {
+  background: var(--green);
+}
+
+.bgPrimary {
+  background: var(--navy);
+}
+
+.bgSecondary {
+  background: var(--teal);
+}
+
+.statNum {
+  font-size: 14px;
+  font-weight: 700;
+}
+
+.statLbl {
+  font-size: 9px;
+}
+
+/* tabs */
+.tabs {
+  margin-top: 14px;
+  display: flex;
+  gap: 4px;
+}
+
+.tab {
+  flex: 1;
+  min-height: 28px;
+  font-size: 11px;
+  font-weight: 700;
+}
+
+.tab.active {
+  color: #ffffff;
+  background: var(--navy);
+  box-shadow:
+    inset -1px -1px var(--highlight),
+    inset 1px 1px var(--shadow-dark),
+    inset -2px -2px var(--face-light),
+    inset 2px 2px var(--shadow);
+}
+
+.stackMd {
+  margin-top: 14px;
+  display: grid;
+  gap: 14px;
+}
+
+.stackSm {
+  display: grid;
+  gap: 8px;
+}
+
+.sectionH {
+  margin: 0;
+  font-size: 13px;
+  font-weight: 700;
+}
+
+.grid2 {
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  gap: 8px;
+}
+
+.grid3 {
+  display: grid;
+  grid-template-columns: repeat(3, minmax(0, 1fr));
+  gap: 8px;
+}
+
+.row {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+}
+
+.rowSm {
+  display: flex;
+  align-items: center;
+  gap: 6px;
+}
+
+.square {
+  width: 32px;
+  height: 32px;
+  display: grid;
+  place-items: center;
+  flex: 0 0 auto;
+  color: #ffffff;
+}
+
+.square.bgPrimary {
+  background: var(--navy);
+}
+
+.square.bgSecondary {
+  background: var(--teal);
+}
+
+.miniSq {
+  width: 26px;
+  height: 26px;
+  display: grid;
+  place-items: center;
+  flex: 0 0 auto;
+  color: #ffffff;
+}
+
+.big {
+  font-size: 18px;
+  font-weight: 700;
+}
+
+.subjectIcon {
+  width: 34px;
+  height: 34px;
+  display: grid;
+  place-items: center;
+  flex: 0 0 auto;
+}
+
+.white {
+  color: #ffffff;
+}
+
+.badgeCard {
+  padding: 10px 6px;
+  display: grid;
+  justify-items: center;
+  gap: 4px;
+  text-align: center;
+}
+
+.badgeEmoji {
+  font-size: 20px;
+}
+
+.badgeTitle {
+  font-size: 11px;
+  font-weight: 700;
+}
+
+.weekRow {
+  padding: 8px 0;
+}
+
+.weekRow + .weekRow {
+  border-top: none;
+}
+
+.divider {
+  margin: 10px 0;
+  height: 1px;
+  background: var(--shadow);
+  box-shadow: 0 1px var(--highlight);
+}
+
+.min0 {
+  min-width: 0;
+}
+
+.truncate {
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+}
+
+.actIcon {
+  width: 34px;
+  height: 34px;
+  display: grid;
+  place-items: center;
+  flex: 0 0 auto;
+  font-size: 16px;
+  background: var(--face);
+  box-shadow:
+    inset -1px -1px var(--shadow-dark),
+    inset 1px 1px var(--highlight);
+}
+
+.dangerTitle {
+  margin: 0;
+  color: var(--red);
+  font-size: 13px;
+  font-weight: 700;
+}
+
+.dangerCard {
+  display: grid;
+  gap: 8px;
+}
+
+.dangerOutline,
+.dangerSolid {
+  min-height: 30px;
+  font-weight: 700;
+}
+
+.dangerOutline {
+  color: var(--red);
+}
+
+.dangerSolid {
+  color: #ffffff;
+  background: var(--red);
+  box-shadow:
+    inset -2px -2px var(--shadow-dark),
+    inset 1px 1px #ff8080,
+    inset -3px -3px var(--shadow),
+    inset 3px 3px #c20000;
+}
+
+.dangerSolid:not(:disabled):active {
+  box-shadow:
+    inset 2px 2px var(--shadow-dark),
+    inset -1px -1px #ff8080,
+    inset 3px 3px var(--shadow),
+    inset -3px -3px #c20000;
+}
+
+.avatarPick {
+  padding: 10px 4px;
+  display: grid;
+  justify-items: center;
+  gap: 4px;
+}
+
+.avatarPick.picked {
+  background: var(--navy);
+  color: #ffffff;
+  box-shadow:
+    inset -1px -1px var(--highlight),
+    inset 1px 1px var(--shadow-dark),
+    inset -2px -2px var(--face-light),
+    inset 2px 2px var(--shadow);
+}
+
+.pickEmoji {
+  font-size: 20px;
+}
+
+.pickName {
+  font-size: 10px;
+  font-weight: 700;
+  text-align: center;
+}
+
+.outlineBtn {
+  min-height: 28px;
+  padding: 0 10px;
+  font-size: 12px;
+  font-weight: 700;
+}
+
+.outlineBtn.sm {
+  min-height: 24px;
+  font-size: 11px;
+}
+
+.trend {
+  margin-top: 4px;
+  display: inline-flex;
+  align-items: center;
+  gap: 3px;
+}
+
+.okText {
+  color: var(--green);
+}
+
+.ghostLink {
+  color: var(--text);
+  font-size: 12px;
+  font-weight: 700;
+}

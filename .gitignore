@@ -13,6 +13,8 @@ dist
 dist-ssr
 coverage
 *.local
+.next
+out
 
 # Editor directories and files
 .vscode/*
@@ -36,3 +38,6 @@ coverage
 __screenshots__/
 
 .env
+
+# Large media assets - host these externally (e.g. YouTube) instead of committing them
+public/videos/

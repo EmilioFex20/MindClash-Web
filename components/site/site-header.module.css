@@ -1,0 +1,91 @@
+.header {
+  position: relative;
+  z-index: 10;
+  width: 100%;
+}
+
+.titleBar {
+  min-height: 34px;
+  display: flex;
+  align-items: center;
+  gap: 16px;
+  padding: 4px 8px;
+  background: linear-gradient(90deg, var(--navy), var(--navy-light));
+  box-shadow: inset 0 -1px var(--shadow-dark);
+}
+
+.brandLink {
+  display: inline-flex;
+}
+
+.menuBar {
+  min-height: 40px;
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  padding: 4px 10px;
+  background: var(--face);
+  box-shadow:
+    inset -1px -1px var(--highlight),
+    inset 1px 1px var(--shadow),
+    inset -2px -2px var(--face-light),
+    inset 2px 2px var(--shadow-dark);
+}
+
+.spacer {
+  flex: 1;
+}
+
+.featuresLink {
+  color: var(--text);
+  font-size: 0.85rem;
+  font-weight: 700;
+}
+
+.loginLink,
+.registerLink {
+  min-height: 24px;
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  padding: 0 14px;
+  color: var(--text);
+  background: var(--face);
+  box-shadow:
+    inset -1px -1px var(--shadow-dark),
+    inset 1px 1px var(--highlight),
+    inset -2px -2px var(--shadow),
+    inset 2px 2px var(--face-light);
+  font-size: 0.82rem;
+  font-weight: 700;
+  text-decoration: none;
+}
+
+.loginLink:active,
+.registerLink:active {
+  box-shadow:
+    inset -1px -1px var(--highlight),
+    inset 1px 1px var(--shadow-dark),
+    inset -2px -2px var(--face-light),
+    inset 2px 2px var(--shadow);
+}
+
+.registerLink {
+  color: #ffffff;
+  background: var(--maroon);
+  box-shadow:
+    inset -1px -1px var(--shadow-dark),
+    inset 1px 1px #c26a6a,
+    inset -2px -2px var(--shadow),
+    inset 2px 2px #a33a3a;
+}
+
+@media (max-width: 680px) {
+  .featuresLink {
+    display: none;
+  }
+
+  .menuBar {
+    justify-content: flex-end;
+  }
+}

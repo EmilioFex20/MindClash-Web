@@ -1,0 +1,42 @@
+.button {
+  width: 100%;
+  min-height: 34px;
+  padding: 0 18px;
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  gap: 8px;
+  color: var(--text);
+  background: var(--face);
+  box-shadow:
+    inset -2px -2px var(--shadow-dark),
+    inset 1px 1px var(--highlight),
+    inset -3px -3px var(--shadow),
+    inset 3px 3px var(--face-light);
+  font-size: 0.92rem;
+  font-weight: 700;
+  cursor: pointer;
+}
+
+.button:active:not(:disabled) {
+  box-shadow:
+    inset 2px 2px var(--shadow-dark),
+    inset -1px -1px var(--highlight),
+    inset 3px 3px var(--shadow),
+    inset -3px -3px var(--face-light);
+}
+
+.button:focus-visible {
+  outline: 1px dotted #000000;
+  outline-offset: -4px;
+}
+
+.button:disabled {
+  color: var(--shadow);
+  cursor: not-allowed;
+}
+
+.spinner {
+  width: 15px;
+  height: 15px;
+}

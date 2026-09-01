@@ -1,0 +1,39 @@
+.form {
+  display: grid;
+  gap: 14px;
+}
+
+.form > button {
+  margin-top: 2px;
+}
+
+.form > button svg {
+  width: 16px;
+  height: 16px;
+}
+
+.error {
+  margin: 0;
+  padding: 8px 10px;
+  display: flex;
+  align-items: flex-start;
+  gap: 8px;
+  color: var(--text);
+  background: #ffe0e0;
+  box-shadow:
+    inset -1px -1px var(--highlight),
+    inset 1px 1px var(--red),
+    inset -2px -2px var(--face-light),
+    inset 2px 2px var(--maroon);
+  font-size: 0.78rem;
+  font-weight: 700;
+  line-height: 1.45;
+}
+
+.error svg {
+  width: 16px;
+  height: 16px;
+  flex: 0 0 auto;
+  margin-top: 1px;
+  color: var(--red);
+}
