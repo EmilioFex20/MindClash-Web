@@ -1,0 +1,77 @@
+rules_version = '2';
+service cloud.firestore {
+  match /databases/{database}/documents {
+
+    function isSignedIn() {
+      return request.auth != null;
+    }
+
+    // Perfil de cada usuario: solo el dueño puede escribir el suyo
+    match /users/{userId} {
+      allow read: if isSignedIn();
+      allow write: if isSignedIn() && request.auth.uid == userId;
+
+      // Progreso agregado (xp total, % por materia, etc.)
+      match /meta/{metaId} {
+        allow read, write: if isSignedIn() && request.auth.uid == userId;
+      }
+
+      // Reclamos de premio (evita cobrar el mismo quiz/duelo dos veces)
+      match /claims/{claimId} {
+        allow read, write: if isSignedIn() && request.auth.uid == userId;
+      }
+
+      // Invitaciones a duelo recibidas por este usuario
+      match /invites/{inviteId} {
+        allow read: if isSignedIn() && request.auth.uid == userId;
+        // Quien invita escribe en la subcolección del invitado, así que no puede
+        // exigirse request.auth.uid == userId aquí; solo que declare su propio uid.
+        allow create: if isSignedIn() && request.resource.data.fromUid == request.auth.uid;
+        // Aceptar/rechazar lo hace el dueño de la subcolección (el invitado)
+        allow update: if isSignedIn() && request.auth.uid == userId;
+        allow delete: if false;
+      }
+    }
+
+    // Duelos 1v1
+    match /matches/{matchId} {
+      // Se necesita poder listar matches "waiting" de otros para el Quick Match
+      allow read: if isSignedIn();
+      allow create: if isSignedIn() && request.resource.data.hostUid == request.auth.uid;
+      allow update: if isSignedIn() && (
+        resource.data.hostUid == request.auth.uid ||
+        resource.data.opponentUid == request.auth.uid ||
+        // unirse como oponente a un match abierto que no es el propio
+        (resource.data.status == 'waiting'
+          && resource.data.opponentUid == null
+          && resource.data.hostUid != request.auth.uid)
+      );
+      allow delete: if false;
+    }
+
+    // Catálogo de quizzes: lectura pública, escritura solo desde consola/backend
+    match /quizzes/{quizId} {
+      allow read: if true;
+      allow write: if false;
+
+      match /questions/{questionId} {
+        allow read: if true;
+        allow write: if false;
+      }
+    }
+
+    // Ejemplo: documentos creados por usuarios (posts, publicaciones, etc.)
+    match /posts/{postId} {
+      allow read: if true; // público
+      allow create: if isSignedIn()
+                    && request.resource.data.ownerId == request.auth.uid;
+      allow update, delete: if isSignedIn()
+                    && resource.data.ownerId == request.auth.uid;
+    }
+
+    // Todo lo demás: cerrado
+    match /{document=**} {
+      allow read, write: if false;
+    }
+  }
+}

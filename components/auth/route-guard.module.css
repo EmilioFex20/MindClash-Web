@@ -1,0 +1,32 @@
+.loadingPage {
+  min-height: 100vh;
+  display: grid;
+  place-items: center;
+  background: var(--face);
+}
+
+.box {
+  display: grid;
+  justify-items: center;
+  gap: 14px;
+  padding: 20px 28px;
+  background: var(--face);
+  box-shadow:
+    inset -1px -1px var(--shadow-dark),
+    inset 1px 1px var(--highlight),
+    inset -2px -2px var(--shadow),
+    inset 2px 2px var(--face-light);
+}
+
+.spinner {
+  width: 24px;
+  height: 24px;
+  border: 3px solid var(--shadow);
+  border-top-color: var(--navy);
+  border-left-color: var(--navy);
+}
+
+.label {
+  font-size: 12px;
+  font-weight: 700;
+}

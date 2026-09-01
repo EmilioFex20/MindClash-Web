@@ -1,0 +1,430 @@
+.quiz {
+  min-height: 100vh;
+  width: 100%;
+  color: var(--text);
+  background: var(--face);
+  padding-bottom: 88px;
+}
+
+.centerPad,
+.pad {
+  padding: 16px 0 28px;
+}
+
+.wrap {
+  width: min(560px, 92vw);
+  margin: 0 auto;
+}
+
+.ghostBack,
+.ghostIcon {
+  display: inline-flex;
+  align-items: center;
+  gap: 6px;
+  min-height: 30px;
+  padding: 0 10px;
+  font-size: 12px;
+  font-weight: 700;
+}
+
+.ghostIcon {
+  width: 34px;
+  padding: 0;
+  justify-content: center;
+}
+
+.mini {
+  width: 14px;
+  height: 14px;
+}
+
+.card {
+  background: #ffffff;
+  box-shadow:
+    inset -1px -1px var(--highlight),
+    inset 1px 1px var(--shadow),
+    inset -2px -2px var(--face-light),
+    inset 2px 2px var(--shadow-dark);
+}
+
+.padLg {
+  padding: 18px;
+}
+
+.center {
+  text-align: center;
+  justify-items: center;
+}
+
+.stackLg {
+  display: grid;
+  gap: 16px;
+}
+
+.stackMd {
+  display: grid;
+  gap: 12px;
+}
+
+.stackSm {
+  display: grid;
+  gap: 8px;
+}
+
+.badgeBig {
+  width: 66px;
+  height: 66px;
+  display: grid;
+  place-items: center;
+  background: var(--navy);
+  box-shadow:
+    inset -2px -2px var(--shadow-dark),
+    inset 1px 1px #dfe8ff,
+    inset -3px -3px var(--shadow),
+    inset 3px 3px var(--navy-light);
+}
+
+.badgeBig.success {
+  background: var(--green);
+}
+
+.bigIcon {
+  width: 30px;
+  height: 30px;
+  color: #ffffff;
+}
+
+.h1 {
+  margin: 0;
+  font-size: 20px;
+  font-weight: 700;
+}
+
+.h2 {
+  margin: 0;
+  font-size: 15px;
+  font-weight: 700;
+  line-height: 1.3;
+}
+
+.muted {
+  margin: 0;
+  line-height: 1.5;
+}
+
+.facts {
+  margin-top: 4px;
+  width: 100%;
+  padding: 10px;
+  display: grid;
+  gap: 6px;
+  background: var(--face);
+  box-shadow:
+    inset -1px -1px var(--shadow-dark),
+    inset 1px 1px var(--highlight);
+}
+
+.factRow {
+  display: flex;
+  justify-content: space-between;
+  font-size: 12px;
+}
+
+.strong {
+  font-weight: 700;
+}
+
+.ctaBtn {
+  width: 100%;
+  min-height: 36px;
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  gap: 8px;
+  color: #ffffff;
+  background: var(--maroon);
+  box-shadow:
+    inset -2px -2px var(--shadow-dark),
+    inset 1px 1px #c26a6a,
+    inset -3px -3px var(--shadow),
+    inset 3px 3px #a33a3a;
+  font-weight: 700;
+}
+
+.ctaBtn:not(:disabled):active {
+  box-shadow:
+    inset 2px 2px var(--shadow-dark),
+    inset -1px -1px #c26a6a,
+    inset 3px 3px var(--shadow),
+    inset -3px -3px #a33a3a;
+}
+
+.outlineBtn {
+  width: 100%;
+  min-height: 34px;
+  font-weight: 700;
+}
+
+.playingHead {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+}
+
+.timer {
+  display: flex;
+  align-items: center;
+  gap: 6px;
+  padding: 4px 10px;
+  background: #ffffff;
+  box-shadow:
+    inset -1px -1px var(--highlight),
+    inset 1px 1px var(--shadow);
+}
+
+.dim {
+  opacity: 0.6;
+}
+
+.time {
+  font-weight: 700;
+}
+
+.danger {
+  color: var(--red);
+}
+
+.meta {
+  margin-top: 12px;
+}
+
+.metaRow {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  font-size: 12px;
+}
+
+.badge {
+  padding: 2px 6px;
+  background: var(--face);
+  box-shadow:
+    inset -1px -1px var(--shadow-dark),
+    inset 1px 1px var(--highlight);
+  font-size: 10px;
+  font-weight: 700;
+}
+
+.bEasy {
+  color: var(--green);
+}
+
+.bMed {
+  color: var(--olive);
+}
+
+.bHard {
+  color: var(--red);
+}
+
+.progressTrack {
+  margin-top: 6px;
+  height: 14px;
+  padding: 2px;
+  background: #ffffff;
+  box-shadow:
+    inset -1px -1px var(--highlight),
+    inset 1px 1px var(--shadow-dark);
+}
+
+.progressTrack.small {
+  height: 10px;
+}
+
+.progressFill {
+  display: block;
+  height: 100%;
+  background-color: var(--navy);
+  background-image: linear-gradient(90deg, var(--navy) 8px, transparent 0 2px);
+  background-repeat: repeat;
+  background-size: 10px 100%;
+}
+
+.outlineBadge {
+  display: inline-block;
+  padding: 3px 9px;
+  background: var(--face);
+  box-shadow:
+    inset -1px -1px var(--shadow-dark),
+    inset 1px 1px var(--highlight);
+  font-size: 11px;
+  font-weight: 700;
+}
+
+.optionBtn {
+  width: 100%;
+  min-height: 42px;
+  padding: 0 12px;
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  text-align: left;
+  font-weight: 700;
+}
+
+.optLetter {
+  width: 22px;
+  height: 22px;
+  display: grid;
+  place-items: center;
+  flex: 0 0 auto;
+  background: var(--face);
+  box-shadow:
+    inset -1px -1px var(--shadow-dark),
+    inset 1px 1px var(--highlight);
+  font-size: 11px;
+}
+
+.optText {
+  font-size: 13px;
+}
+
+.confetti {
+  position: fixed;
+  inset: 0;
+  z-index: 40;
+  pointer-events: none;
+}
+
+.confettiPiece {
+  position: absolute;
+  top: -10px;
+  width: 8px;
+  height: 8px;
+  background: var(--yellow);
+  box-shadow: inset -1px -1px var(--shadow-dark);
+  animation: fall 1.4s linear forwards;
+}
+
+@keyframes fall {
+  to {
+    transform: translateY(110vh) rotate(180deg);
+  }
+}
+
+.okCard,
+.badCard {
+  box-shadow:
+    inset -1px -1px var(--highlight),
+    inset 1px 1px var(--green),
+    inset -2px -2px var(--face-light),
+    inset 2px 2px var(--green);
+}
+
+.badCard {
+  box-shadow:
+    inset -1px -1px var(--highlight),
+    inset 1px 1px var(--red),
+    inset -2px -2px var(--face-light),
+    inset 2px 2px var(--maroon);
+}
+
+.resultIcon {
+  width: 52px;
+  height: 52px;
+  margin: 0 auto;
+  display: grid;
+  place-items: center;
+  background: var(--face);
+  box-shadow:
+    inset -1px -1px var(--shadow-dark),
+    inset 1px 1px var(--highlight);
+}
+
+.midIcon {
+  width: 26px;
+  height: 26px;
+}
+
+.midIcon.ok {
+  color: var(--green);
+}
+
+.midIcon.bad {
+  color: var(--red);
+}
+
+.okText {
+  color: var(--green);
+}
+
+.badText {
+  color: var(--red);
+}
+
+.box {
+  padding: 10px;
+  background: var(--face);
+  box-shadow:
+    inset -1px -1px var(--shadow-dark),
+    inset 1px 1px var(--highlight);
+}
+
+.boxTitle {
+  font-size: 11px;
+  font-weight: 700;
+}
+
+.boxText {
+  margin-top: 4px;
+  font-size: 12px;
+}
+
+.stats {
+  width: 100%;
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  gap: 8px;
+}
+
+.statBlock {
+  padding: 12px;
+  text-align: center;
+  background: #ffffff;
+  box-shadow:
+    inset -1px -1px var(--highlight),
+    inset 1px 1px var(--shadow);
+}
+
+.statBig {
+  font-size: 26px;
+  font-weight: 700;
+}
+
+.rating {
+  font-weight: 700;
+}
+
+.rGold {
+  color: var(--olive);
+}
+
+.rBlue {
+  color: var(--navy);
+}
+
+.rGreen {
+  color: var(--green);
+}
+
+.rOrange {
+  color: var(--maroon);
+}
+
+.spinner {
+  width: 26px;
+  height: 26px;
+  border: 3px solid var(--shadow);
+  border-top-color: var(--navy);
+  border-left-color: var(--navy);
+}

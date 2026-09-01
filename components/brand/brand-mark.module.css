@@ -1,0 +1,65 @@
+.brand {
+  display: inline-flex;
+  align-items: center;
+  gap: 8px;
+}
+
+.iconWrap {
+  width: 34px;
+  height: 34px;
+  display: grid;
+  place-items: center;
+  flex: 0 0 auto;
+  color: #ffffff;
+  background: var(--navy);
+  box-shadow:
+    inset -1px -1px var(--shadow-dark),
+    inset 1px 1px #dfe8ff,
+    inset -2px -2px var(--shadow),
+    inset 2px 2px var(--navy-light);
+}
+
+.icon {
+  width: 20px;
+  height: 20px;
+}
+
+.name {
+  color: var(--text);
+  font-size: 1.05rem;
+  font-weight: 700;
+}
+
+.name span {
+  color: var(--maroon);
+}
+
+.compact .iconWrap {
+  width: 28px;
+  height: 28px;
+}
+
+.compact .icon {
+  width: 16px;
+  height: 16px;
+}
+
+.compact .name {
+  font-size: 0.95rem;
+}
+
+/* On the navy title bar the wordmark reads white, like title-bar-text. */
+.onTitleBar .name,
+.onTitleBar .name span {
+  color: #ffffff;
+}
+
+.onTitleBar .iconWrap {
+  background: #ffffff;
+  color: var(--navy);
+  box-shadow:
+    inset -1px -1px var(--shadow-dark),
+    inset 1px 1px #ffffff,
+    inset -2px -2px var(--shadow),
+    inset 2px 2px var(--face-light);
+}

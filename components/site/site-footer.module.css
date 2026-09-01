@@ -1,0 +1,44 @@
+.footer {
+  position: relative;
+  z-index: 1;
+  background: var(--face);
+  box-shadow: inset 0 1px var(--highlight);
+}
+
+.inner {
+  width: min(1160px, calc(100% - 40px));
+  min-height: 96px;
+  margin: 0 auto;
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 28px;
+}
+
+.inner p {
+  margin: 0;
+  color: var(--text);
+  font-size: 0.85rem;
+  text-align: center;
+}
+
+.links {
+  display: flex;
+  align-items: center;
+  gap: 18px;
+  font-size: 0.85rem;
+  font-weight: 700;
+}
+
+.links a {
+  color: var(--text);
+}
+
+@media (max-width: 700px) {
+  .inner {
+    width: min(100% - 32px, 1160px);
+    padding: 22px 0;
+    flex-direction: column;
+    gap: 14px;
+  }
+}

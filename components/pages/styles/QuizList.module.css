@@ -1,0 +1,132 @@
+.page {
+  min-height: 100vh;
+  color: var(--text);
+  background: var(--face);
+  padding-bottom: 88px;
+}
+
+.wrap {
+  width: min(560px, 92vw);
+  margin: 0 auto;
+  padding: 16px 0 28px;
+}
+
+.top {
+  margin-bottom: 14px;
+}
+
+.ghostBack {
+  display: inline-flex;
+  align-items: center;
+  min-height: 30px;
+  padding: 0 10px;
+  font-size: 12px;
+  font-weight: 700;
+}
+
+.title {
+  margin: 10px 0 0;
+  font-size: 19px;
+  font-weight: 700;
+}
+
+.subtitle {
+  margin: 6px 0 0;
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  font-size: 12px;
+}
+
+.pill {
+  display: inline-block;
+  padding: 2px 8px;
+  background: #ffffff;
+  box-shadow:
+    inset -1px -1px var(--shadow-dark),
+    inset 1px 1px var(--highlight);
+  font-weight: 700;
+}
+
+.clear {
+  min-height: 22px;
+  padding: 0 8px;
+  font-size: 11px;
+  font-weight: 700;
+}
+
+.center {
+  display: grid;
+  place-items: center;
+  padding: 30px 0;
+}
+
+.spinner {
+  width: 26px;
+  height: 26px;
+  border: 3px solid var(--shadow);
+  border-top-color: var(--navy);
+  border-left-color: var(--navy);
+}
+
+.error {
+  padding: 10px;
+  color: var(--red);
+  background: #ffffff;
+  box-shadow:
+    inset -1px -1px var(--highlight),
+    inset 1px 1px var(--red);
+  font-weight: 700;
+}
+
+.empty {
+  padding: 20px;
+  text-align: center;
+}
+
+.list {
+  display: grid;
+  gap: 8px;
+}
+
+.card {
+  width: 100%;
+  padding: 12px;
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 10px;
+  text-align: left;
+  background: #ffffff;
+  box-shadow:
+    inset -1px -1px var(--highlight),
+    inset 1px 1px var(--shadow),
+    inset -2px -2px var(--face-light),
+    inset 2px 2px var(--shadow-dark);
+}
+
+.cardLeft {
+  min-width: 0;
+}
+
+.cardTitle {
+  font-size: 13px;
+  font-weight: 700;
+}
+
+.cardMeta {
+  margin-top: 3px;
+  font-size: 11px;
+}
+
+.xp {
+  flex: 0 0 auto;
+  padding: 3px 9px;
+  color: var(--maroon);
+  background: var(--face);
+  box-shadow:
+    inset -1px -1px var(--shadow-dark),
+    inset 1px 1px var(--highlight);
+  font-size: 11px;
+  font-weight: 700;
+}

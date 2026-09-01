@@ -1,0 +1,308 @@
+.lb {
+  min-height: 100vh;
+  color: var(--text);
+  background: var(--face);
+  padding-bottom: 88px;
+}
+
+.pad {
+  padding: 14px 0 28px;
+}
+
+.wrap {
+  width: min(560px, 92vw);
+  margin: 0 auto;
+}
+
+.head {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+}
+
+.ghostBack {
+  display: inline-flex;
+  align-items: center;
+  gap: 6px;
+  min-height: 30px;
+  padding: 0 10px;
+  font-size: 12px;
+  font-weight: 700;
+}
+
+.mini {
+  width: 14px;
+  height: 14px;
+}
+
+.micro {
+  width: 12px;
+  height: 12px;
+}
+
+.h1 {
+  margin: 0;
+  font-size: 17px;
+  font-weight: 700;
+}
+
+.spacer {
+  flex: 1;
+}
+
+.card {
+  background: #ffffff;
+  box-shadow:
+    inset -1px -1px var(--highlight),
+    inset 1px 1px var(--shadow),
+    inset -2px -2px var(--face-light),
+    inset 2px 2px var(--shadow-dark);
+}
+
+.padMd {
+  padding: 10px;
+}
+
+.meCard {
+  margin-top: 12px;
+  box-shadow:
+    inset -1px -1px var(--highlight),
+    inset 1px 1px var(--navy),
+    inset -2px -2px var(--face-light),
+    inset 2px 2px var(--navy);
+}
+
+.row {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+}
+
+.rowSm {
+  display: flex;
+  align-items: center;
+  gap: 6px;
+}
+
+.rowBetween {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+}
+
+.rankBadge {
+  width: 40px;
+  height: 40px;
+  display: grid;
+  place-items: center;
+  flex: 0 0 auto;
+  background: var(--face);
+  box-shadow:
+    inset -1px -1px var(--shadow-dark),
+    inset 1px 1px var(--highlight);
+}
+
+.bgGold {
+  background: var(--yellow);
+}
+
+.bgSilver {
+  background: #dfdfdf;
+}
+
+.bgBronze {
+  background: #d29a5e;
+}
+
+.bgDefault {
+  background: var(--face);
+}
+
+.emoji {
+  font-size: 18px;
+}
+
+.grow {
+  flex: 1;
+  min-width: 0;
+}
+
+.name {
+  font-size: 13px;
+  font-weight: 700;
+}
+
+.youPill {
+  display: inline-block;
+  padding: 1px 6px;
+  color: #ffffff;
+  background: var(--navy);
+  font-size: 10px;
+  font-weight: 700;
+}
+
+.country {
+  font-size: 10px;
+  padding: 1px 5px;
+  background: var(--face);
+  box-shadow:
+    inset -1px -1px var(--shadow-dark),
+    inset 1px 1px var(--highlight);
+}
+
+.right {
+  flex: 0 0 auto;
+}
+
+.rankIcon {
+  width: 20px;
+  height: 20px;
+  color: var(--olive);
+}
+
+.tabs {
+  margin-top: 12px;
+  display: flex;
+  gap: 4px;
+}
+
+.tab {
+  flex: 1;
+  min-height: 28px;
+  font-size: 11px;
+  font-weight: 700;
+}
+
+.tab.active {
+  color: #ffffff;
+  background: var(--navy);
+  box-shadow:
+    inset -1px -1px var(--highlight),
+    inset 1px 1px var(--shadow-dark),
+    inset -2px -2px var(--face-light),
+    inset 2px 2px var(--shadow);
+}
+
+.stackMd {
+  margin-top: 14px;
+  display: grid;
+  gap: 12px;
+}
+
+.stackSm {
+  display: grid;
+  gap: 8px;
+}
+
+.sectionTitle {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+}
+
+.primary {
+  color: var(--navy);
+}
+
+.secondary {
+  color: var(--teal);
+}
+
+.accent {
+  color: var(--olive);
+}
+
+.h2 {
+  margin: 0;
+  font-size: 14px;
+  font-weight: 700;
+}
+
+.item.isMe {
+  box-shadow:
+    inset -1px -1px var(--highlight),
+    inset 1px 1px var(--navy),
+    inset -2px -2px var(--face-light),
+    inset 2px 2px var(--navy);
+}
+
+.meta {
+  margin-top: 4px;
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  font-size: 11px;
+}
+
+.metaIcon {
+  display: inline-flex;
+  align-items: center;
+  gap: 3px;
+}
+
+.streak {
+  color: var(--maroon);
+}
+
+.success {
+  color: var(--green);
+}
+
+.sm {
+  min-height: 24px;
+  font-size: 11px;
+}
+
+.outlineBtn {
+  font-weight: 700;
+}
+
+.weekCard {
+  padding: 14px;
+}
+
+.center {
+  text-align: center;
+  justify-items: center;
+}
+
+.bigNum {
+  margin: 4px 0;
+  font-size: 22px;
+  font-weight: 700;
+  color: var(--maroon);
+}
+
+.okText {
+  color: var(--green);
+}
+
+.badText {
+  color: var(--red);
+}
+
+.small {
+  font-size: 11px;
+}
+
+.subjectSwitch {
+  display: flex;
+  gap: 6px;
+}
+
+.pillBtn {
+  min-height: 26px;
+  padding: 0 12px;
+  font-size: 11px;
+  font-weight: 700;
+}
+
+.pillBtn.active {
+  color: #ffffff;
+  background: var(--navy);
+  box-shadow:
+    inset -1px -1px var(--highlight),
+    inset 1px 1px var(--shadow-dark),
+    inset -2px -2px var(--face-light),
+    inset 2px 2px var(--shadow);
+}
