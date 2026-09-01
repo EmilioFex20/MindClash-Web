@@ -16,7 +16,7 @@ import styles from './landing-page.module.css'
 
 // Paste the YouTube video ID here once the presentation is uploaded, e.g. "dQw4w9WgXcQ"
 // (the part after "v=" in the YouTube URL). Leave empty to show the "coming soon" placeholder.
-const YOUTUBE_VIDEO_ID = ''
+const YOUTUBE_VIDEO_ID = 'CQu4P7WLLOY'
 
 const features = [
   {
